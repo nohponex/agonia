@@ -8,16 +8,18 @@ sealed trait CardStack {
     case EmptyStack() => 0
     case Stack(x) => x.length
   }
+
+  def push(card: Card): Stack = this match {
+    case EmptyStack() => Stack(List(card))
+    case Stack(x) => Stack(x.prepended(card))
+  }
 }
 final case class EmptyStack() extends CardStack {
-  def push(card: Card): Stack = Stack(List(card))
 }
 final case class Stack(c: List[Card]) extends CardStack {
   def shuffle(): Stack = {
     Stack(c.reverse)
   }
-
-  def push(card: Card): Stack = Stack(c.prepended(card))
 
   def peek(): Card = {
     c(0)
@@ -41,7 +43,7 @@ final case class Stack(c: List[Card]) extends CardStack {
   }
 }
 
-def NewStackFromDeck(): Stack = {
+def NewShuflledStackFromDeck(): Stack = {
   val d = Deck.get()
 
   return Stack(d).shuffle()
