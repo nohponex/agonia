@@ -51,4 +51,16 @@ class StackTest extends org.scalatest.funsuite.AnyFunSuite {
     assert(res._1 == EmptyStack())
     assert(52 == res._2.length)
   }
+
+  test("when EmptyStack push") {
+    val c = Card(rank = Rank.Ace, suit = Suit.Spades)
+    val s = EmptyStack().push(c)
+    assert(c == s.peek())
+  }
+
+  test("push pushes card on top") {
+    val c = Card(rank = Rank.Ace, suit = Suit.Spades)
+    val s = Stack(List(Card(rank = Rank.Queen, suit = Suit.Hearts))).push(c)
+    assert(c == s.peek())
+  }
 }
