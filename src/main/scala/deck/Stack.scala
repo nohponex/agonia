@@ -1,6 +1,7 @@
 package deck
 
 import Agonia.cards.Card
+import scala.util.Random
 
 sealed trait CardStack {
   //possibly not need for EmptyStack to have length at all
@@ -18,7 +19,7 @@ final case class EmptyStack() extends CardStack {
 }
 final case class Stack(c: List[Card]) extends CardStack {
   def shuffle(): Stack = {
-    Stack(c.reverse)
+    Stack(Random.shuffle(c))
   }
 
   def peek(): Card = {
