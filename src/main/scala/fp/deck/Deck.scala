@@ -1,6 +1,6 @@
-package deck
+package nohponex.agonia.fp.deck
 
-import Agonia.cards.{Card, Rank, Suit}
+import nohponex.agonia.fp.cards.{Card, Rank, Suit}
 
 import scala.collection.immutable.List
 

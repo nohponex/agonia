@@ -1,6 +1,7 @@
-package deck
+package nohponex.agonia.fp.deck
 
-import Agonia.cards.Card
+import nohponex.agonia.fp.cards.Card
+
 import scala.util.Random
 
 sealed trait CardStack {
@@ -33,7 +34,7 @@ final case class Stack(c: List[Card]) extends CardStack {
 
   def take(n: Int): (CardStack, List[Card]) = {
     if n > this.length() then
-      throw new RuntimeException("Cannot take more cards than are in deck")
+      throw new RuntimeException("Cannot take more fp.cards than are in fp.deck")
 
     if n == this.length() then
       return (EmptyStack(), c)

@@ -1,29 +1,30 @@
-package game
+package nohponex.agonia.fp.game
 
-import deck.{CardStack, EmptyStack, NewShuflledStackFromDeck, Stack}
-import player.Players
-import player.Player
-import Agonia.cards.{Card, Rank}
-import game.*
+import nohponex.agonia.fp.deck.{CardStack, EmptyStack, NewShuflledStackFromDeck, Stack}
+import nohponex.agonia.fp.player.Players
+import nohponex.agonia.fp.player.Player
+import nohponex.agonia.fp.cards.{Card, Rank}
+import nohponex.agonia.fp.game.*
 import scala.io.StdIn.readLine
 
 class Game {
   def Init(): Unit = {
     var players = Players(Player.Player1, 2)
 
-    var playerStacks = players.All().foldLeft(Map.empty[player.Player.Player, deck.CardStack])((a, b) => a + (b -> deck.EmptyStack()))
+    var playerStacks = players.All().foldLeft(Map.empty[Player, CardStack])((a, b) => a + (b -> EmptyStack()))
 
+    //those two need to handled by same container, since an after take() if it's empty we need to re-shuffle usedStack
     var usedStack: CardStack = EmptyStack()
     var stack: CardStack = NewShuflledStackFromDeck()
 
     for (p <- players.All()) {
-      val (s1, cards) = stack.asInstanceOf[deck.Stack].take(7)
+      val (s1, cards) = stack.asInstanceOf[Stack].take(7)
       stack = s1
 
       playerStacks = playerStacks + (p->Stack(cards))
     }
 
-    val (s1, card) = stack.asInstanceOf[deck.Stack].take1()
+    val (s1, card) = stack.asInstanceOf[Stack].take1()
     stack = s1
     usedStack = usedStack.push(card)
 
@@ -55,12 +56,14 @@ class Game {
   }
 
   //need to pass choise of suit back
-  def play(state: GameState, players: player.Players, playerStacks: Map[Player.Player, CardStack]): Card = {
+  def play(state: GameState, players: Players, playerStacks: Map[Player, CardStack]): Card = {
     println(s"Turn for ${players.Current()} to play!")
     println("Choose between:" )
     for (card, index) <- playerStacks(players.Current()).asInstanceOf[Stack].c.zipWithIndex do {
-      println(s"${index}) ${card}")
+      println(s"- ${index}) ${card}")
     }
+    println("- or you can draw")
+    println("- or you can fold")
 
     val card = playedCard(playerStacks(players.Current()).asInstanceOf[Stack], state)
     println(card)

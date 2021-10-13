@@ -1,6 +1,6 @@
-package deck
+package nohponex.agonia.fp.deck
 
-import Agonia.cards.{Card, Rank, Suit}
+import nohponex.agonia.fp.cards.{Card, Rank, Suit}
 
 class StackTest extends org.scalatest.funsuite.AnyFunSuite {
   test("take1 returns only first card") {
@@ -19,7 +19,7 @@ class StackTest extends org.scalatest.funsuite.AnyFunSuite {
     assert(4 == s1.length())
   }
 
-  test("test(n) takes n first cards") {
+  test("test(n) takes n first fp.cards") {
     var s = Stack(List(
       Card(rank = Rank.Ace, suit = Suit.Clubs),
       Card(rank = Rank.Ace, suit = Suit.Diamonds),
@@ -38,8 +38,8 @@ class StackTest extends org.scalatest.funsuite.AnyFunSuite {
     assert(cards(2) == Card(rank = Rank.Ace, suit = Suit.Hearts))
 
     s1 match {
-      case _: deck.EmptyStack => assert(false)
-      case ss: deck.Stack => assert(ss.peek() == Card(rank = Rank.Ace, suit = Suit.Spades))
+      case _: EmptyStack => assert(false)
+      case ss: Stack => assert(ss.peek() == Card(rank = Rank.Ace, suit = Suit.Spades))
     }
   }
 
@@ -64,15 +64,15 @@ class StackTest extends org.scalatest.funsuite.AnyFunSuite {
     assert(c == s.peek())
   }
 
-  test("doing 52 take1 will empty a stack from deck") {
+  test("doing 52 take1 will empty a stack from fp.deck") {
     var deck1: CardStack = NewShuflledStackFromDeck()
     var otherDeck: CardStack = EmptyStack()
 
     for( _ <- 0 until 52){
       deck1 match {
-        case _: deck.EmptyStack => assert(false)
+        case _: EmptyStack => assert(false)
 
-        case dd: deck.Stack => {
+        case dd: Stack => {
           val (d1, card) = dd.take1()
           deck1 = d1
           otherDeck = otherDeck.push(card)

@@ -1,8 +1,8 @@
-package game
+package nohponex.agonia.fp.game
 
-import Agonia.cards.Card
-import Agonia.cards.Suit.Suit
-import player.Players
+import nohponex.agonia.fp.cards.Card
+import nohponex.agonia.fp.cards.Suit
+import nohponex.agonia.fp.player.Players
 
 sealed trait GameState (currentCard: Card) {
   def played(p: Players): Players = {
@@ -18,9 +18,8 @@ sealed trait GameState (currentCard: Card) {
       case (Normal(_) | Eight(_) | Nine(_), Card(rank, suit)) => return currentCard.suit == suit || currentCard.rank == rank
       case (Ace(_, ofSuite), Card(rank, suit)) => return ofSuite == suit || currentCard.rank == rank
       case (Seven(_), _) => ???
+      case (_, _) => false
     }
-
-    false
   }
 }
 

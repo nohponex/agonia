@@ -1,4 +1,5 @@
-name := "Agonia"
+organization := "com.github.nohponex"
+name := "agonia"
 
 version := "0.1"
 

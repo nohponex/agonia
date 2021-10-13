@@ -1,7 +1,7 @@
-package Agonia
+package nohponex.agonia
 
-import cards.{Card, Rank, Suit}
-import game.Game
+import nohponex.agonia.fp.cards.{Card, Rank, Suit}
+import nohponex.agonia.fp.game.Game
 
 object Main {
  def main(args: Array[String]) = {

@@ -1,6 +1,6 @@
-package player
+package nohponex.agonia.fp.player
 
-import player.Player.{Player, Player1, Player2}
+import nohponex.agonia.fp.player.Player
 
 case class Players(private var current: Player, private var numberOfPlayer: Int) {
   def Next(): Players = {
