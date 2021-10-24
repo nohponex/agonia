@@ -17,3 +17,9 @@ object FixedDeck extends DeckGenerator{
     return Stack(Deck.get())
   }
 }
+
+class InjectedDeck(s: Stack) extends DeckGenerator{
+  def DeckGenerator(): Stack = {
+    return s
+  }
+}

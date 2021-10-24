@@ -30,15 +30,14 @@ def startAGameOf2()(using dockGenerator: DeckGenerator): Game = {
   //todo what about 8?
   Game(
     players = players,
-    gameState = gameStateFromCard(card),
+    gameState = gameStateFromInitialCard(card),
     playerStacks = playerStacks,
     stackPair = StackPair(stack, Stack(List(card))),
     LinearSeq(
       GameStarted(2),
       es.events.PlayerPlayedCard(Player.Player1, card),
-      PlayerEndedTurn(Player.Player1),
     )
-  )
+  ).emit(PlayerEndedTurn(Player.Player1))
 }
 
 case class Game(
@@ -68,18 +67,16 @@ case class Game(
           gameState = Ace(currentCard = card, ofSuite),
         )
       }
-      case _: PlayerEndedTurn => {
-        var newGameState = gameStateFromCard(this.stackPair.peek())
-
-        for ((p, s) <- this.playerStacks) {
-           if (s.length() == 0) {
-             newGameState = Ended()
-           }
-        }
+      case PlayerEndedTurn(p): PlayerEndedTurn => {
+         if (this.playerStacks(p).length() == 0) {
+           this.copy(
+             gameState = Ended()
+           )
+         }
 
         this.copy(
-          players = this.players.Next(), //f(state)
-          gameState = newGameState
+          players = this.gameState.played(this.players),
+          //gameState = newGameState
         )
       }
       case _: PlayerDrewCard => ???
@@ -88,8 +85,9 @@ case class Game(
   }
 }
 
-def gameStateFromCard(card: Card): GameState = (card.rank, card.suit) match {
-  case (Rank.Nine, _) => Seven(card)
+def gameStateFromInitialCard(card: Card): GameState = (card.rank, card.suit) match {
+  case (Rank.Nine, _) => Nine(card)
+  case (Rank.Eight, _) => Eight(card)
   case (Rank.Seven, _) => Seven(card)
   case _ => Normal(card)
 }
