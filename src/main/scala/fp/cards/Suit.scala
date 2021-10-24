@@ -6,3 +6,4 @@ enum Suit(string: String):
   case Spades  extends Suit("♠")
   case Clubs extends Suit("♣")
 
+  override def toString: String = this.string

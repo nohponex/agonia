@@ -2,24 +2,28 @@ package nohponex.agonia.fp.deck
 
 import nohponex.agonia.fp.cards.Card
 
-case class StackPair(private val stack: CardStack, private val usedStack: CardStack = EmptyStack()) {
+case class StackPair(private val stack: CardStack, private val usedStack: Stack) {
+  def peek(): Card = {
+    usedStack.peek()
+  }
+  def stackLength(): Int = {
+    this.stack.length()
+  }
+  
   def take1(): (StackPair, Card) = {
-    take(1) match
-      case (a, b) => (a, b(0))
-  }
-
-  def take(n: Int): (StackPair, List[Card]) = {
-    //todo take(n-length) first
-    val res = stack match {
-      case Stack(c) => (stack, usedStack)
-      case EmptyStack() => (usedStack.asInstanceOf[Stack].shuffle(), EmptyStack())
+    val (newStack, newUsedStack) = (stack, usedStack) match {
+      case (EmptyStack(), Stack(c)) => {
+        val (taken1, card) = usedStack.asInstanceOf[Stack].take1()
+        (taken1.asInstanceOf[Stack].shuffle(), Stack(List(card)))
+      }
+      case _ => (stack, usedStack)
     }
-    val (s, c) = res._1.asInstanceOf[Stack].take(n)
+    val (s, c) = newStack.asInstanceOf[Stack].take1()
 
-    (this.copy(stack = s, usedStack = res._2), c)
+    (this.copy(stack = s, usedStack = newUsedStack), c)
   }
 
-  def push(c: Card): StackPair = {
-    this.copy(stack = this.stack, usedStack = this.usedStack.push(c))
+  def play(c: Card): StackPair = {
+    this.copy(usedStack = this.usedStack.push(c))
   }
 }

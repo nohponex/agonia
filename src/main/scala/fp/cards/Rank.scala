@@ -14,3 +14,5 @@ enum Rank(string: String):
   case Jack extends Rank("J")
   case Queen extends Rank("Q")
   case King extends Rank("K")
+
+  override def toString: String = this.string

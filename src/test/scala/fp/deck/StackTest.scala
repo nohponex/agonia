@@ -44,7 +44,7 @@ class StackTest extends org.scalatest.funsuite.AnyFunSuite {
   }
 
   test("test(52) should return empty") {
-    val s = NewShuflledStackFromDeck()
+    val s = NewShuflledStackFromDeck.DeckGenerator()
     assert(52 === s.length())
 
     val res = s.take(52)
@@ -65,7 +65,7 @@ class StackTest extends org.scalatest.funsuite.AnyFunSuite {
   }
 
   test("doing 52 take1 will empty a stack from fp.deck") {
-    var deck1: CardStack = NewShuflledStackFromDeck()
+    var deck1: CardStack = NewShuflledStackFromDeck.DeckGenerator()
     var otherDeck: CardStack = EmptyStack()
 
     for( _ <- 0 until 52){

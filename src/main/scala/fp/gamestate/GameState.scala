@@ -1,7 +1,7 @@
-package nohponex.agonia.fp.game
+package nohponex.agonia.fp.gamestate
 
-import nohponex.agonia.fp.cards.Card
-import nohponex.agonia.fp.cards.Suit
+import nohponex.agonia.fp.cards.{Card, Suit, Rank}
+import nohponex.agonia.fp.game.*
 import nohponex.agonia.fp.player.Players
 
 sealed trait GameState (currentCard: Card) {
@@ -15,7 +15,7 @@ sealed trait GameState (currentCard: Card) {
 
   def isAllowed(c: Card): Boolean = {
     (this, c) match {
-      case (Normal(_) | Eight(_) | Nine(_), Card(rank, suit)) => return currentCard.suit == suit || currentCard.rank == rank
+      case (Normal(_) | Eight(_) | Nine(_), Card(rank, suit)) => return currentCard.suit == suit || currentCard.rank == rank || rank == Rank.Ace
       case (Ace(_, ofSuite), Card(rank, suit)) => return ofSuite == suit || currentCard.rank == rank
       case (Seven(_), _) => ???
       case (_, _) => false
@@ -30,3 +30,4 @@ final case class Seven2(currentCard: Card) extends GameState(currentCard)
 final case class Seven3(currentCard: Card) extends GameState(currentCard)
 final case class Eight(currentCard: Card) extends GameState(currentCard)
 final case class Nine(currentCard: Card) extends GameState(currentCard)
+final case class Ended() extends GameState(null)

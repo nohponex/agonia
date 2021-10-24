@@ -44,9 +44,3 @@ final case class Stack(c: List[Card]) extends CardStack {
     (Stack(s2), s1)
   }
 }
-
-def NewShuflledStackFromDeck(): Stack = {
-  val d = Deck.get()
-
-  return Stack(d).shuffle()
-}
