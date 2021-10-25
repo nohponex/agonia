@@ -19,6 +19,15 @@ sealed trait CardStack {
 final case class EmptyStack() extends CardStack {
 }
 final case class Stack(c: List[Card]) extends CardStack {
+  def remove(card: Card): CardStack = {
+      val a = c.filterNot(_ == card)
+
+      a match {
+        case Nil => EmptyStack()
+        case _ => Stack(a)
+      }
+  }
+
   def shuffle(): Stack = {
     Stack(Random.shuffle(c))
   }

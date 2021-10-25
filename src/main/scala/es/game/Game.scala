@@ -35,9 +35,10 @@ def startAGameOf2()(using dockGenerator: DeckGenerator): Game = {
     stackPair = StackPair(stack, Stack(List(card))),
     LinearSeq(
       GameStarted(2),
-      es.events.PlayerPlayedCard(Player.Player1, card),
     )
-  ).emit(PlayerEndedTurn(Player.Player1))
+  )
+    .emit(PlayerPlayedCard(Player.Player1, card))
+    .emit(PlayerEndedTurn(Player.Player1))
 }
 
 case class Game(
@@ -45,8 +46,18 @@ case class Game(
      gameState: GameState,
      playerStacks: Map[Player, CardStack],
      stackPair: StackPair,
-     events: LinearSeq[Event] = LinearSeq()
+     events: LinearSeq[Event] = LinearSeq(),
+     currentPlayerDrewCard: Boolean = false,
 ) {
+  def CanFold(): Boolean = {
+    currentPlayerDrewCard
+  }
+
+  def CanDraw(): Boolean = {
+    true
+  }
+
+
   def emit(event : Event): Game = {
     this.copy(events = events.appended(event)).apply(event)
   }
@@ -56,38 +67,78 @@ case class Game(
       case GameStarted(n): GameStarted => {
         this
       }
-      case PlayerPlayedCard(_, card): PlayerPlayedCard => {
-        this.copy(
-          players = this.players.Next(), //not nessesary because can play 8 etc so either gamestate needs to provide it or have like a YieldEvent
-        )
-      }
-      case PlayerPlayedCardAce(_, card, ofSuite): PlayerPlayedCardAce => {
-        this.copy(
-          players = this.players.Next(),
-          gameState = Ace(currentCard = card, ofSuite),
-        )
-      }
-      case PlayerEndedTurn(p): PlayerEndedTurn => {
-         if (this.playerStacks(p).length() == 0) {
-           this.copy(
-             gameState = Ended()
-           )
-         }
+      case PlayerPlayedCard(p, card): PlayerPlayedCard => {
+        assert(this.players.Current() == p)
+        if card.rank == Rank.Eight then {
+          return this.copy(
+            stackPair = stackPair.play(card),
+            playerStacks = playerStacks + (p -> playerStacks(p).asInstanceOf[Stack].remove(card)),
+            currentPlayerDrewCard = false
+          )
+        }
+
+        if card.rank == Rank.Nine then {
+          return this.copy(
+            players = players.Next().Next(),
+            stackPair = stackPair.play(card),
+            playerStacks = playerStacks + (p -> playerStacks(p).asInstanceOf[Stack].remove(card)),
+            currentPlayerDrewCard = false
+          ).emit(PlayerEndedTurn(p))
+        }
 
         this.copy(
-          players = this.gameState.played(this.players),
-          //gameState = newGameState
+          players = players.Next(), //not nessesary because can play 8 etc so either gamestate needs to provide it or have like a YieldEvent
+          stackPair = stackPair.play(card),
+          playerStacks = playerStacks + (p -> playerStacks(p).asInstanceOf[Stack].remove(card))
+        ).emit(PlayerEndedTurn(p)) //todo ???
+      }
+      case PlayerPlayedCardAce(p, card, ofSuite): PlayerPlayedCardAce => {
+        assert(this.players.Current() == p)
+        assert(card.rank == Rank.Ace)
+
+        this.copy(
+          players = players.Next(),
+          gameState = Ace(currentCard = card, ofSuite),
+          stackPair = stackPair.play(card),
+          playerStacks = playerStacks + (p -> playerStacks(p).asInstanceOf[Stack].remove(card))
+        ).emit(PlayerEndedTurn(p))
+      }
+      case PlayerEndedTurn(p): PlayerEndedTurn => {
+        //assert(this.players.Current() == p)
+        if this.playerStacks(p).length() == 0 then {
+          return this.copy(
+            gameState = Ended()
+          )
+        }
+
+        this.copy(
+         // players = this.gameState.played(this.players),
+          currentPlayerDrewCard = false,
+          //gameState = newGameState //todo
         )
       }
-      case _: PlayerDrewCard => ???
-      case _: PlayerFolded => ???
+      case PlayerDrewCard(p): PlayerDrewCard => {
+        assert(this.players.Current() == p)
+        val (newStackPair, cc) = this.stackPair.take1()
+
+        val s = playerStacks  + (p -> playerStacks(p).push(cc))
+
+        this.copy(
+          playerStacks = s,
+          stackPair = newStackPair,
+          currentPlayerDrewCard = true
+        )
+      }
+      case PlayerFolded(p): PlayerFolded => {
+        this.copy(
+          players = this.gameState.played(this.players)
+        ).emit(PlayerEndedTurn(p))
+      }
     }
   }
 }
 
 def gameStateFromInitialCard(card: Card): GameState = (card.rank, card.suit) match {
-  case (Rank.Nine, _) => Nine(card)
-  case (Rank.Eight, _) => Eight(card)
   case (Rank.Seven, _) => Seven(card)
   case _ => Normal(card)
 }

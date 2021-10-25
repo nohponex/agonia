@@ -83,4 +83,19 @@ class StackTest extends org.scalatest.funsuite.AnyFunSuite {
     assert(deck1 == EmptyStack())
     assert(52 == otherDeck.length())
   }
+
+  test("Remove") {
+    val cardToRemove = Card(rank = Rank.Ace, suit = Suit.Hearts)
+    val s = Stack(List(
+      Card(rank = Rank.Queen, suit = Suit.Hearts),
+      cardToRemove,
+      Card(rank = Rank.King, suit = Suit.Hearts),
+    )).remove(cardToRemove)
+
+    assert(s.length() == 2)
+    assert(s == Stack(List(
+      Card(rank = Rank.Queen, suit = Suit.Hearts),
+      Card(rank = Rank.King, suit = Suit.Hearts),
+    )))
+  }
 }

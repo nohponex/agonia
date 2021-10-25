@@ -4,7 +4,7 @@ import nohponex.agonia.fp.cards.{Card, Rank, Suit}
 import nohponex.agonia.fp.deck.{DeckGenerator, FixedDeck, InjectedDeck, NewShuflledStackFromDeck, Stack}
 import nohponex.agonia.fp.player.{Player, Players}
 import nohponex.agonia.fp.gamestate
-import nohponex.agonia.fp.gamestate.{Eight, Nine, Normal, Seven}
+import nohponex.agonia.fp.gamestate.{Normal, Seven}
 
 given dockGenerator:DeckGenerator = FixedDeck
 
@@ -22,14 +22,6 @@ class GameTest extends org.scalatest.funsuite.AnyFunSuite {
     assert(gameStateFromInitialCard(Card(Rank.Seven, Suit.Spades)).isInstanceOf[Seven])
   }
 
-  test("gameStateFromInitialCard is Eight") {
-    assert(gameStateFromInitialCard(Card(Rank.Eight, Suit.Spades)).isInstanceOf[Eight])
-  }
-
-  test("gameStateFromInitialCard is Nine") {
-    assert(gameStateFromInitialCard(Card(Rank.Nine, Suit.Spades)).isInstanceOf[Nine])
-  }
-
   test("gameStateFromInitialCard is Normal") {
     assert(gameStateFromInitialCard(Card(Rank.Ace, Suit.Spades)).isInstanceOf[Normal])
     assert(gameStateFromInitialCard(Card(Rank.Two, Suit.Spades)).isInstanceOf[Normal])
@@ -42,7 +34,7 @@ class GameTest extends org.scalatest.funsuite.AnyFunSuite {
     assert(g.players.Current() == Player.Player2)
   }
 
-  test("given Initial Card is Eight and State is GameState Eight then it should be Player1 turn to play") {
+  test("given Initial Card is Eight then should be Player1 turn to play") {
     //todo using factories might be an exaggeration since we can create any state we want
     given dockGenerator:DeckGenerator = InjectedDeck(Stack(List(
       Card(Rank.Ace, Suit.Spades),
@@ -65,12 +57,11 @@ class GameTest extends org.scalatest.funsuite.AnyFunSuite {
     )))
     val g = startAGameOf2()
 
-    require(g.gameState.isInstanceOf[Eight])
     require(g.stackPair.peek().rank == Rank.Eight)
     assert(g.players.Current() == Player.Player1)
   }
 
-  test("given Initial Card is Nine and State is GameState is then it should be Player1 turn to play") {
+  test("given Initial Card is Nine and then it should be Player1 turn to play") {
     given dockGenerator:DeckGenerator = InjectedDeck(Stack(List(
       Card(Rank.Ace, Suit.Spades),
       Card(Rank.Ace, Suit.Spades),
@@ -92,18 +83,11 @@ class GameTest extends org.scalatest.funsuite.AnyFunSuite {
     )))
     val g = startAGameOf2()
 
-    require(g.gameState.isInstanceOf[Nine])
     require(g.stackPair.peek().rank == Rank.Nine)
     assert(g.players.Current() == Player.Player1)
   }
 
   test("given Player1 Played Ace") {
 
-    Game(
-      players = Players(Player.Player1, 2),
-      gameState = Normal(Card(Rank.Nine, Suit.Hearts))
-
-
-    )
   }
 }

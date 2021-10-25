@@ -1,6 +1,6 @@
 package nohponex.agonia.fp.game
 
-import nohponex.agonia.fp.gamestate.{Eight, GameState, Nine, Normal, Seven}
+import nohponex.agonia.fp.gamestate.{GameState, Normal, Seven}
 import nohponex.agonia.fp.deck.{CardStack, EmptyStack, NewShuflledStackFromDeck, Stack}
 import nohponex.agonia.fp.player.Players
 import nohponex.agonia.fp.player.Player
@@ -33,8 +33,6 @@ class Game {
     //init state
     var state: GameState = card match {
       case Card(Rank.Seven, _) => Seven(card)
-      case Card(Rank.Eight, _) => Eight(card)
-      case Card(Rank.Nine, _) => Nine(card)
       //Rank.Ace should be treated as a normal card on beggining of round
       case _ => Normal(card)
     }
