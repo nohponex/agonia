@@ -34,7 +34,7 @@ object Main {
       }
 
       println("Choose between:" )
-      for (card, index) <- g.playerStacks(g.players.Current()).asInstanceOf[Stack].c.zipWithIndex do {
+      for (card, index) <- g.playerStacks(g.players.Current()).asInstanceOf[Stack].cards.zipWithIndex do {
         card.suit match {
           case Suit.Spades | Suit.Clubs => println(s"- ${UNDERLINED}${index}${RESET}) ${BLACK}${card}${RESET}")
           case Suit.Diamonds | Suit.Hearts => println(s"- ${UNDERLINED}${index}${RESET}) ${RED}${card}${RESET}")

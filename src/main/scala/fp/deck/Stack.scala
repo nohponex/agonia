@@ -21,24 +21,22 @@ sealed trait CardStack {
     case Stack(x) => Stack(x.prependedAll(cards))
   }
 }
-final case class EmptyStack() extends CardStack {
-}
-final case class Stack(c: List[Card]) extends CardStack {
-  def remove(card: Card): CardStack = {
-      val a = c.filterNot(_ == card)
 
-      a match {
+final case class EmptyStack() extends CardStack {}
+final case class Stack(cards: List[Card]) extends CardStack {
+  def remove(card: Card): CardStack = {
+      cards.filterNot(_ == card) match {
         case Nil => EmptyStack()
-        case _ => Stack(a)
+        case s: _ => Stack(s)
       }
   }
 
   def shuffle(): Stack = {
-    Stack(Random.shuffle(c))
+    Stack(Random.shuffle(cards))
   }
 
   def peek(): Card = {
-    c(0)
+    cards(0)
   }
 
   def take1(): (CardStack, Card) = {
@@ -51,9 +49,9 @@ final case class Stack(c: List[Card]) extends CardStack {
       throw new RuntimeException("Cannot take more fp.cards than are in fp.deck")
 
     if n == this.length() then
-      return (EmptyStack(), c)
+      return (EmptyStack(), cards)
 
-    val (s1, s2) = c.splitAt(n)
+    val (s1, s2) = cards.splitAt(n)
 
     (Stack(s2), s1)
   }
