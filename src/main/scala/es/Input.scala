@@ -18,10 +18,10 @@ def playedCard(
   while(true) {
     val read = readLine()
 
-    if read == "draw" && g.CanDraw() then {
+    if read.toLowerCase().startsWith("d") && g.CanDraw() then {
       return PlayerDrewCard(player)
     }
-    if read == "fold" && g.CanFold() then {
+    if read.toLowerCase().startsWith("f") && g.CanFold() then {
       return PlayerFolded(player)
     }
 
