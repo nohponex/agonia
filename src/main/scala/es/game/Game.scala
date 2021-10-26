@@ -71,13 +71,11 @@ case class Game(
         assert(this.players.Current() == p)
 
         if card.rank == Rank.Seven then {
-          var nextState: GameState = Seven(card)
-          if gameState.isInstanceOf[Base7] then {
-            nextState = gameState.asInstanceOf[Base7].Escalate()
-          }
-
           return this.copy(
-            gameState = nextState,
+            gameState = gameState match {
+              case a: Base7 => a.Escalate(card)
+              case _ => Seven(card)
+            },
             players = players.Next(),
             stackPair = stackPair.play(card),
             playerStacks = playerStacks + (p -> playerStacks(p).asInstanceOf[Stack].remove(card)),

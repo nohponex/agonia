@@ -6,7 +6,7 @@ import nohponex.agonia.fp.player.Players
 sealed trait Base7 extends GameState {
   def ToDraw(): Int
 
-  def Escalate(): Base7
+  def Escalate(card: Card): Base7
 }
 
 sealed trait GameState (currentCard: Card) {
@@ -31,18 +31,18 @@ final case class Normal(currentCard: Card) extends GameState(currentCard)
 final case class Ace(currentCard: Card, ofSuite: Suit) extends GameState(currentCard)
 final case class Seven(currentCard: Card) extends GameState(currentCard) with Base7 {
   override def ToDraw(): Int = 2
-  override def Escalate(): Base7 = Seven2(currentCard)
+  override def Escalate(card: Card): Base7 = Seven2(card)
 }
 final case class Seven2(currentCard: Card) extends GameState(currentCard) with Base7 {
   override def ToDraw(): Int = 4
-  override def Escalate(): Base7 = Seven2(currentCard)
+  override def Escalate(card: Card): Base7 = Seven2(card)
 }
 final case class Seven3(currentCard: Card) extends GameState(currentCard) with Base7{
   override def ToDraw(): Int = 6
-  override def Escalate(): Base7 = Seven4(currentCard)
+  override def Escalate(card: Card): Base7 = Seven4(card)
 }
 final case class Seven4(currentCard: Card) extends GameState(currentCard) with Base7{
   override def ToDraw(): Int = 8
-  override def Escalate(): Base7 = ???
+  override def Escalate(card: Card): Base7 = ???
 }
 final case class Ended() extends GameState(null)
