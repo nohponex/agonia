@@ -35,7 +35,6 @@ def playedCard(
               return PlayerPlayedCardAce(player, played, aceOfSuit())
             }
             return PlayerPlayedCard(player, played)
-          //todo case ace ask suit
           else
             println(s"$played is not allowed now")
         else
