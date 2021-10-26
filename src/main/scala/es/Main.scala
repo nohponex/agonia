@@ -24,20 +24,20 @@ object Main {
       println("Current player is: " + g.players.Current())
 
       if g.CanFold() then {
-        println("You can fold, type \"fold\"")
+        println(s"You can fold, type \"${UNDERLINED}f${RESET}old\"")
       }
       if g.gameState.isInstanceOf[Base7] then {
         val ToCount = g.gameState.asInstanceOf[Base7].ToDraw()
-        println(s"You have either play 7 or to draw (${ToCount}), type \"draw\"")
+        println(s"You have either play 7 or to draw (${ToCount}), type \"${UNDERLINED}d${RESET}raw\"")
       } else if g.CanDraw() then {
-        println("You can draw, type \"draw\"")
+        println(s"You can draw, type \"${UNDERLINED}d${RESET}raw\"")
       }
 
       println("Choose between:" )
       for (card, index) <- g.playerStacks(g.players.Current()).asInstanceOf[Stack].c.zipWithIndex do {
         card.suit match {
-          case Suit.Spades | Suit.Clubs => println(s"- ${index}) ${BLACK}${card}${RESET}")
-          case Suit.Diamonds | Suit.Hearts => println(s"- ${index}) ${RED}${card}${RESET}")
+          case Suit.Spades | Suit.Clubs => println(s"- ${UNDERLINED}${index}${RESET}) ${BLACK}${card}${RESET}")
+          case Suit.Diamonds | Suit.Hearts => println(s"- ${UNDERLINED}${index}${RESET}) ${RED}${card}${RESET}")
         }
 
       }
