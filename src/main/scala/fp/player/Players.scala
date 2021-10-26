@@ -5,6 +5,7 @@ import nohponex.agonia.fp.player.Player
 case class Players(private var current: Player, private var numberOfPlayer: Int) {
   assert(numberOfPlayer > 0)
   assert(numberOfPlayer <= 4)
+
   def Next(): Players = {
     if current == Player.Player1 then {
       return this.copy(current = Player.Player2)
@@ -23,7 +24,9 @@ case class Players(private var current: Player, private var numberOfPlayer: Int)
 
   def Current(): Player = current
 
-  def All(): List[Player] = {
-    List(Player.Player1, Player.Player2)
+  def All(): List[Player] = numberOfPlayer match {
+    case 2 => List(Player.Player1, Player.Player2)
+    case 3 => List(Player.Player1, Player.Player2, Player.Player3)
+    case 4 => List(Player.Player1, Player.Player2, Player.Player3, Player.Player4)
   }
 }

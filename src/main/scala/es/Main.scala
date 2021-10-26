@@ -1,7 +1,7 @@
 package nohponex.agonia.es
 
 import nohponex.agonia.es.events.*
-import nohponex.agonia.es.game.{Game, dockGenerator, startAGameOf2}
+import nohponex.agonia.es.game.{Game, dockGenerator, startAGameOf}
 import nohponex.agonia.fp.cards.{Card, Rank, Suit}
 import nohponex.agonia.fp.deck.{CardStack, Stack}
 import nohponex.agonia.fp.gamestate.{Ace, Base7, Ended, GameState, Seven}
@@ -12,7 +12,7 @@ import scala.io.StdIn.readLine
 
 object Main {
   def main(args: Array[String]) = {
-    var g = startAGameOf2()
+    var g = startAGameOf(3)
 
     while (!g.gameState.isInstanceOf[Ended]) {
       g.gameState match {

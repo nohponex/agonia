@@ -11,8 +11,8 @@ import scala.collection.LinearSeq
 //default implicit
 given dockGenerator: DeckGenerator = NewShuflledStackFromDeck
 
-def startAGameOf2()(using dockGenerator: DeckGenerator): Game = {
-  val players = Players(Player.Player1, 2)
+def startAGameOf(numberOfPlayer: Int)(using dockGenerator: DeckGenerator): Game = {
+  val players = Players(Player.Player1, numberOfPlayer)
 
   var playerStacks = players.All().foldLeft(Map.empty[Player, CardStack])((a, b) => a + (b -> EmptyStack()))
   var usedStack: CardStack = EmptyStack()
@@ -26,19 +26,21 @@ def startAGameOf2()(using dockGenerator: DeckGenerator): Game = {
   val (s1, card) = stack.asInstanceOf[Stack].take1()
   stack = s1
 
-  //todo state = f(card)
-  //todo what about 8?
   Game(
     players = players,
     gameState = gameStateFromInitialCard(card),
     playerStacks = playerStacks,
     stackPair = StackPair(stack, Stack(List(card))),
     LinearSeq(
-      GameStarted(2),
+      GameStarted(numberOfPlayer),
     )
   )
     .emit(PlayerPlayedCard(Player.Player1, card))
     .emit(PlayerEndedTurn(Player.Player1))
+}
+
+def startAGameOf2()(using dockGenerator: DeckGenerator): Game = {
+  startAGameOf(2)
 }
 
 case class Game(
