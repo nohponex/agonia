@@ -31,7 +31,7 @@ def playedCard(
         if asInt >= 0 && asInt < stack.length() then
           val played = stack.c(asInt)
           if state.isAllowed(played) then
-            if played.rank == Rank.Ace && state != Ace then {
+            if played.rank == Rank.Ace && !state.isInstanceOf[Ace] then {
               return PlayerPlayedCardAce(player, played, aceOfSuit())
             }
             return PlayerPlayedCard(player, played)
