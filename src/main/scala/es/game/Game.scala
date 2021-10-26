@@ -100,7 +100,7 @@ case class Game(
           players = players.Next(),
           stackPair = stackPair.play(card),
           playerStacks = playerStacks + (p -> playerStacks(p).asInstanceOf[Stack].remove(card))
-        ).emit(PlayerEndedTurn(p)) //todo ???
+        ).emit(PlayerEndedTurn(p))
       }
     }
     case PlayerPlayedCardAce(p, card, ofSuite): PlayerPlayedCardAce => {

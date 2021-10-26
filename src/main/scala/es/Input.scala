@@ -57,14 +57,12 @@ def aceOfSuit(): Suit = {
       + s"${RED}${Suit.Hearts}${UNDERLINED}H${RESET}earts${RESET}, "
       + s"${BLACK}${Suit.Spades}${UNDERLINED}S${RESET}pades${RESET}):"
     )
-    val c = readLine()
-    if !c.isEmpty then
-      c.charAt(0).toLower match {
-        case 'c' => return Suit.Clubs
-        case 'd' => return Suit.Diamonds
-        case 'h' => return Suit.Hearts
-        case 's' => return Suit.Spades
-      }
+    val c = readLine().toLowerCase()
+
+    if c.startsWith("c") then return Suit.Clubs
+    if c.startsWith("d") then return Suit.Diamonds
+    if c.startsWith("h") then return Suit.Hearts
+    if c.startsWith("s") then return Suit.Spades
   }
   Suit.Hearts
 }
