@@ -57,121 +57,112 @@ case class Game(
     true
   }
 
-
-  def emit(event : Event): Game = {
+  def emit(event: Event): Game = {
     this.copy(events = events.appended(event)).apply(event)
   }
 
-  def apply(event : Event): Game = {
-    event match {
-      case GameStarted(n): GameStarted => {
-        this
-      }
-      case PlayerPlayedCard(p, card): PlayerPlayedCard => {
-        assert(this.players.Current() == p)
+  def apply(event: Event): Game = event match {
+    case GameStarted(n): GameStarted => {
+      this
+    }
+    case PlayerPlayedCard(p, card): PlayerPlayedCard => {
+      assert(this.players.Current() == p)
 
-        if card.rank == Rank.Seven then {
-          return this.copy(
-            gameState = gameState match {
-              case a: Base7 => a.Escalate(card)
-              case _ => Seven(card)
-            },
-            players = players.Next(),
-            stackPair = stackPair.play(card),
-            playerStacks = playerStacks + (p -> playerStacks(p).asInstanceOf[Stack].remove(card)),
-            currentPlayerDrewCard = false
-          ).emit(PlayerEndedTurn(p))
-        }
+      card.rank match {
+        case Rank.Seven => this.copy(
+          gameState = gameState match {
+            case a: Base7 => a.Escalate(card)
+            case _ => Seven(card)
+          },
+          players = players.Next(),
+          stackPair = stackPair.play(card),
+          playerStacks = playerStacks + (p -> playerStacks(p).asInstanceOf[Stack].remove(card)),
+          currentPlayerDrewCard = false
+        ).emit(PlayerEndedTurn(p))
+        case Rank.Eight => this.copy(
+          gameState = Normal(card),
+          stackPair = stackPair.play(card),
+          playerStacks = playerStacks + (p -> playerStacks(p).asInstanceOf[Stack].remove(card)),
+          currentPlayerDrewCard = false
+        ).emit(PlayerEndedTurn(p))
+        case Rank.Nine => this.copy(
+          gameState = Normal(card),
+          players = players.Next().Next(),
+          stackPair = stackPair.play(card),
+          playerStacks = playerStacks + (p -> playerStacks(p).asInstanceOf[Stack].remove(card)),
+          currentPlayerDrewCard = false
+        ).emit(PlayerEndedTurn(p))
 
-        if card.rank == Rank.Eight then {
-          return this.copy(
-            gameState = Normal(card),
-            stackPair = stackPair.play(card),
-            playerStacks = playerStacks + (p -> playerStacks(p).asInstanceOf[Stack].remove(card)),
-            currentPlayerDrewCard = false
-          ).emit(PlayerEndedTurn(p))
-        }
-
-        if card.rank == Rank.Nine then {
-          return this.copy(
-            gameState = Normal(card),
-            players = players.Next().Next(),
-            stackPair = stackPair.play(card),
-            playerStacks = playerStacks + (p -> playerStacks(p).asInstanceOf[Stack].remove(card)),
-            currentPlayerDrewCard = false
-          ).emit(PlayerEndedTurn(p))
-        }
-
-        this.copy(
+        case _ => this.copy(
           gameState = Normal(card),
           players = players.Next(),
           stackPair = stackPair.play(card),
           playerStacks = playerStacks + (p -> playerStacks(p).asInstanceOf[Stack].remove(card))
         ).emit(PlayerEndedTurn(p)) //todo ???
       }
-      case PlayerPlayedCardAce(p, card, ofSuite): PlayerPlayedCardAce => {
-        assert(this.players.Current() == p)
-        assert(card.rank == Rank.Ace)
-        assert(!gameState.isInstanceOf[Ace])
+    }
+    case PlayerPlayedCardAce(p, card, ofSuite): PlayerPlayedCardAce => {
+      assert(this.players.Current() == p)
+      assert(card.rank == Rank.Ace)
+      assert(!gameState.isInstanceOf[Ace])
 
-        this.copy(
-          players = players.Next(),
-          gameState = Ace(currentCard = card, ofSuite),
-          stackPair = stackPair.play(card),
-          playerStacks = playerStacks + (p -> playerStacks(p).asInstanceOf[Stack].remove(card))
-        ).emit(PlayerEndedTurn(p))
-      }
-      case PlayerEndedTurn(p): PlayerEndedTurn => {
-        if this.playerStacks(p).length() == 0 then {
-          return this.copy(
-            gameState = Ended()
-          )
-        }
-
-        this.copy(
-         // players = this.gameState.played(this.players),
-          currentPlayerDrewCard = false,
-          //gameState = newGameState //todo
+      this.copy(
+        players = players.Next(),
+        gameState = Ace(currentCard = card, ofSuite),
+        stackPair = stackPair.play(card),
+        playerStacks = playerStacks + (p -> playerStacks(p).asInstanceOf[Stack].remove(card))
+      ).emit(PlayerEndedTurn(p))
+    }
+    case PlayerEndedTurn(p): PlayerEndedTurn => {
+      if this.playerStacks(p).length() == 0 then {
+        return this.copy(
+          gameState = Ended()
         )
       }
-      case PlayerDrewCard(p): PlayerDrewCard => {
-        assert(this.players.Current() == p)
 
-        if gameState.isInstanceOf[Base7] then {
+      this.copy(
+        currentPlayerDrewCard = false,
+      )
+    }
+    case PlayerDrewCard(p): PlayerDrewCard => {
+      assert(this.players.Current() == p)
+
+      gameState match {
+        case a: Base7 => {
           var cards: List[Card] = Nil
           var newStackPair = stackPair
-          for i  <- 0 until gameState.asInstanceOf[Base7].ToDraw() do {
+          for i <- 0 until a.ToDraw() do {
             var (newStackPair2: StackPair, cc: Card) = newStackPair.take1()
             newStackPair = newStackPair2
             cards = cards.prepended(cc)
           }
 
-          val s = playerStacks + (p -> playerStacks(p).push(cards))
-          return this.copy(
+          this.copy(
             gameState = Normal(gameState.CurrentCard),
-            playerStacks = s,
+            playerStacks = playerStacks + (p -> playerStacks(p).push(cards)),
             stackPair = newStackPair,
             currentPlayerDrewCard = false
           )
         }
+        case _ => {
+          val (newStackPair, cc) = this.stackPair.take1()
 
-        val (newStackPair, cc) = this.stackPair.take1()
-
-        val s = playerStacks  + (p -> playerStacks(p).push(cc))
-
-        this.copy(
-          playerStacks = s,
-          stackPair = newStackPair,
-          currentPlayerDrewCard = true
-        )
-      }
-      case PlayerFolded(p): PlayerFolded => {
-        assert(currentPlayerDrewCard)
-        this.copy(
-          players = this.gameState.played(this.players)
-        ).emit(PlayerEndedTurn(p))
+          this.copy(
+            playerStacks = playerStacks + (p -> playerStacks(p).push(cc)),
+            stackPair = newStackPair,
+            currentPlayerDrewCard = true
+          )
+        }
       }
     }
+    case PlayerFolded(p): PlayerFolded => {
+      assert(currentPlayerDrewCard)
+
+      this.copy(
+        players = this.gameState.played(this.players)
+      ).emit(PlayerEndedTurn(p))
+    }
+    case _ => ???
   }
 }
 
