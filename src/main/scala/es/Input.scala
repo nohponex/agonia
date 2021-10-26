@@ -9,7 +9,12 @@ import nohponex.agonia.fp.player.Player
 import io.AnsiColor._
 import scala.io.StdIn.readLine
 
-def playedCard(g : Game, player: Player, stack: Stack, state: GameState): Event = {
+def playedCard(
+    g : Game,
+    player: Player,
+    stack: Stack,
+    state: GameState,
+): PlayerDrewCard|PlayerFolded|PlayerPlayedCardAce|PlayerPlayedCard = {
   while(true) {
     val read = readLine()
 

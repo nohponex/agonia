@@ -82,7 +82,7 @@ case class Game(
             stackPair = stackPair.play(card),
             playerStacks = playerStacks + (p -> playerStacks(p).asInstanceOf[Stack].remove(card)),
             currentPlayerDrewCard = false
-          )
+          ).emit(PlayerEndedTurn(p))
         }
 
         if card.rank == Rank.Eight then {
@@ -91,7 +91,7 @@ case class Game(
             stackPair = stackPair.play(card),
             playerStacks = playerStacks + (p -> playerStacks(p).asInstanceOf[Stack].remove(card)),
             currentPlayerDrewCard = false
-          )
+          ).emit(PlayerEndedTurn(p))
         }
 
         if card.rank == Rank.Nine then {
@@ -168,6 +168,7 @@ case class Game(
         )
       }
       case PlayerFolded(p): PlayerFolded => {
+        assert(currentPlayerDrewCard)
         this.copy(
           players = this.gameState.played(this.players)
         ).emit(PlayerEndedTurn(p))

@@ -51,6 +51,6 @@ object Main {
       println("event:" + event)
       g = g.emit(event)
     }
-    println("Game over! " + g.players.Current() + " won")
+    println("Game over! ")
   }
 }
