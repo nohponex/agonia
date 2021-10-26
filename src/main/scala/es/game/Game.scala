@@ -69,6 +69,22 @@ case class Game(
       }
       case PlayerPlayedCard(p, card): PlayerPlayedCard => {
         assert(this.players.Current() == p)
+
+        if card.rank == Rank.Seven then {
+          var nextState: GameState = Seven(card)
+          if gameState.isInstanceOf[Base7] then {
+            nextState = gameState.asInstanceOf[Base7].Escalate()
+          }
+
+          return this.copy(
+            gameState = nextState,
+            players = players.Next(),
+            stackPair = stackPair.play(card),
+            playerStacks = playerStacks + (p -> playerStacks(p).asInstanceOf[Stack].remove(card)),
+            currentPlayerDrewCard = false
+          )
+        }
+
         if card.rank == Rank.Eight then {
           return this.copy(
             gameState = Normal(card),
@@ -122,6 +138,25 @@ case class Game(
       }
       case PlayerDrewCard(p): PlayerDrewCard => {
         assert(this.players.Current() == p)
+
+        if gameState.isInstanceOf[Base7] then {
+          var cards: List[Card] = Nil
+          var newStackPair = stackPair
+          for i  <- 0 until gameState.asInstanceOf[Base7].ToDraw() do {
+            var (newStackPair2: StackPair, cc: Card) = newStackPair.take1()
+            newStackPair = newStackPair2
+            cards = cards.prepended(cc)
+          }
+
+          val s = playerStacks + (p -> playerStacks(p).push(cards))
+          return this.copy(
+            gameState = Normal(gameState.CurrentCard),
+            playerStacks = s,
+            stackPair = newStackPair,
+            currentPlayerDrewCard = false
+          )
+        }
+
         val (newStackPair, cc) = this.stackPair.take1()
 
         val s = playerStacks  + (p -> playerStacks(p).push(cc))

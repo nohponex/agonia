@@ -4,10 +4,10 @@ import nohponex.agonia.es.events.*
 import nohponex.agonia.es.game.{Game, dockGenerator, startAGameOf2}
 import nohponex.agonia.fp.cards.{Card, Rank, Suit}
 import nohponex.agonia.fp.deck.{CardStack, Stack}
-import nohponex.agonia.fp.gamestate.{Ended, GameState, Ace}
+import nohponex.agonia.fp.gamestate.{Ace, Base7, Ended, GameState, Seven}
 import nohponex.agonia.fp.player.{Player, Players}
-import io.AnsiColor._
 
+import io.AnsiColor.*
 import scala.io.StdIn.readLine
 
 object Main {
@@ -26,7 +26,10 @@ object Main {
       if g.CanFold() then {
         println("You can fold, type \"fold\"")
       }
-      if g.CanDraw() then {
+      if g.gameState.isInstanceOf[Base7] then {
+        val ToCount = g.gameState.asInstanceOf[Base7].ToDraw()
+        println(s"You have either play 7 or to draw (${ToCount}), type \"draw\"")
+      } else if g.CanDraw() then {
         println("You can draw, type \"draw\"")
       }
 

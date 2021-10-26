@@ -15,6 +15,11 @@ sealed trait CardStack {
     case EmptyStack() => Stack(List(card))
     case Stack(x) => Stack(x.prepended(card))
   }
+
+  def push(cards: List[Card]): Stack = this match {
+    case EmptyStack() => Stack(cards)
+    case Stack(x) => Stack(x.prependedAll(cards))
+  }
 }
 final case class EmptyStack() extends CardStack {
 }
