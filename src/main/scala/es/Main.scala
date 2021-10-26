@@ -2,10 +2,11 @@ package nohponex.agonia.es
 
 import nohponex.agonia.es.events.*
 import nohponex.agonia.es.game.{Game, dockGenerator, startAGameOf2}
-import nohponex.agonia.fp.cards.Card
+import nohponex.agonia.fp.cards.{Card, Rank, Suit}
 import nohponex.agonia.fp.deck.{CardStack, Stack}
-import nohponex.agonia.fp.gamestate.{Ended, GameState}
+import nohponex.agonia.fp.gamestate.{Ended, GameState, Ace}
 import nohponex.agonia.fp.player.{Player, Players}
+import io.AnsiColor._
 
 import scala.io.StdIn.readLine
 
@@ -14,12 +15,16 @@ object Main {
     var g = startAGameOf2()
 
     while (!g.gameState.isInstanceOf[Ended]) {
-      println("Current card is: " + g.stackPair.peek())
+      g.gameState match {
+        case Ace(_, ofSuite) => println("Current card is: " + g.stackPair.peek() + " but of suit " + ofSuite)
+        case _ => println("Current card is: " + g.stackPair.peek())
+      }
+
       println()
       println("Current player is: " + g.players.Current())
 
       if g.CanFold() then {
-        println("You can draw, type \"fold\"")
+        println("You can fold, type \"fold\"")
       }
       if g.CanDraw() then {
         println("You can draw, type \"draw\"")
@@ -27,7 +32,11 @@ object Main {
 
       println("Choose between:" )
       for (card, index) <- g.playerStacks(g.players.Current()).asInstanceOf[Stack].c.zipWithIndex do {
-        println(s"- ${index}) ${card}")
+        card.suit match {
+          case Suit.Spades | Suit.Clubs => println(s"- ${index}) ${BLACK}${card}${RESET}")
+          case Suit.Diamonds | Suit.Hearts => println(s"- ${index}) ${RED}${card}${RESET}")
+        }
+
       }
       val event = playedCard(
         g,
@@ -41,35 +50,4 @@ object Main {
     }
     println("Game over! " + g.players.Current() + " won")
   }
-}
-
-def playedCard(g : Game, player: Player, stack: Stack, state: GameState): Event = {
-  while(true) {
-    val read = readLine()
-
-    if read == "draw" && g.CanDraw() then {
-      return PlayerDrewCard(player)
-    }
-    if read == "fold" && g.CanFold() then {
-      return PlayerFolded(player)
-    }
-
-    read.toIntOption match {
-      case None => {}
-      case Some(asInt) => {
-        if asInt >= 0 && asInt < stack.length() then
-          val played = stack.c(asInt)
-          if state.isAllowed(played) then
-            return PlayerPlayedCard(player, played)
-          //todo case ace ask suit
-          else
-            println(s"$played is not allowed now")
-        else
-          println("out of index")
-      }
-    }
-  }
-
-  //nop
-  return PlayerFolded(player)
 }

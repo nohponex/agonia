@@ -71,6 +71,7 @@ case class Game(
         assert(this.players.Current() == p)
         if card.rank == Rank.Eight then {
           return this.copy(
+            gameState = Normal(card),
             stackPair = stackPair.play(card),
             playerStacks = playerStacks + (p -> playerStacks(p).asInstanceOf[Stack].remove(card)),
             currentPlayerDrewCard = false
@@ -79,6 +80,7 @@ case class Game(
 
         if card.rank == Rank.Nine then {
           return this.copy(
+            gameState = Normal(card),
             players = players.Next().Next(),
             stackPair = stackPair.play(card),
             playerStacks = playerStacks + (p -> playerStacks(p).asInstanceOf[Stack].remove(card)),
@@ -87,7 +89,8 @@ case class Game(
         }
 
         this.copy(
-          players = players.Next(), //not nessesary because can play 8 etc so either gamestate needs to provide it or have like a YieldEvent
+          gameState = Normal(card),
+          players = players.Next(),
           stackPair = stackPair.play(card),
           playerStacks = playerStacks + (p -> playerStacks(p).asInstanceOf[Stack].remove(card))
         ).emit(PlayerEndedTurn(p)) //todo ???
@@ -95,6 +98,7 @@ case class Game(
       case PlayerPlayedCardAce(p, card, ofSuite): PlayerPlayedCardAce => {
         assert(this.players.Current() == p)
         assert(card.rank == Rank.Ace)
+        assert(!gameState.isInstanceOf[Ace])
 
         this.copy(
           players = players.Next(),
@@ -104,7 +108,6 @@ case class Game(
         ).emit(PlayerEndedTurn(p))
       }
       case PlayerEndedTurn(p): PlayerEndedTurn => {
-        //assert(this.players.Current() == p)
         if this.playerStacks(p).length() == 0 then {
           return this.copy(
             gameState = Ended()
