@@ -35,8 +35,7 @@ def startAGameOf(numberOfPlayer: Int)(using dockGenerator: DeckGenerator): Game 
       GameStarted(numberOfPlayer),
     )
   )
-    .emit(PlayerPlayedCard(Player.Player1, card))
-    .emit(PlayerEndedTurn(Player.Player1))
+    .play(PlayerPlayedCard(Player.Player1, card))
 }
 
 def startAGameOf2()(using dockGenerator: DeckGenerator): Game = {
@@ -59,7 +58,11 @@ case class Game(
     true
   }
 
-  def emit(event: Event): Game = {
+  def play(event: PlayerActionEvent): Game = {
+    emit(event)
+  }
+
+  private def emit(event: Event): Game = {
     this.copy(events = events.appended(event)).apply(event)
   }
 
@@ -126,7 +129,7 @@ case class Game(
         currentPlayerDrewCard = false,
       )
     }
-    case PlayerDrewCard(p): PlayerDrewCard => {
+    case PlayerDrew(p): PlayerDrew => {
       assert(this.players.Current() == p)
 
       gameState match {

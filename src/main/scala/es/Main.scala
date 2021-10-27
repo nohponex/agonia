@@ -49,7 +49,7 @@ object Main {
       )
 
       println("event:" + event)
-      g = g.emit(event)
+      g = g.play(event)
     }
     println("Game over! ")
   }

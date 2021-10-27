@@ -1,12 +1,13 @@
 package nohponex.agonia.es
 
-import nohponex.agonia.es.events.{Event, PlayerDrewCard, PlayerFolded, PlayerPlayedCard, PlayerPlayedCardAce}
+import nohponex.agonia.es.events.{Event, PlayerActionEvent, PlayerDrew, PlayerFolded, PlayerPlayedCard, PlayerPlayedCardAce}
 import nohponex.agonia.es.game.Game
 import nohponex.agonia.fp.cards.{Rank, Suit}
 import nohponex.agonia.fp.deck.Stack
-import nohponex.agonia.fp.gamestate.{GameState, Ace}
+import nohponex.agonia.fp.gamestate.{Ace, GameState}
 import nohponex.agonia.fp.player.Player
-import io.AnsiColor._
+
+import io.AnsiColor.*
 import scala.io.StdIn.readLine
 
 def playedCard(
@@ -14,12 +15,12 @@ def playedCard(
     player: Player,
     stack: Stack,
     state: GameState,
-): PlayerDrewCard|PlayerFolded|PlayerPlayedCardAce|PlayerPlayedCard = {
+): PlayerActionEvent = {
   while(true) {
     val read = readLine()
 
     if read.toLowerCase().startsWith("d") && g.CanDraw() then {
-      return PlayerDrewCard(player)
+      return PlayerDrew(player)
     }
     if read.toLowerCase().startsWith("f") && g.CanFold() then {
       return PlayerFolded(player)
