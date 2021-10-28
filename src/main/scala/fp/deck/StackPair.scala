@@ -43,8 +43,11 @@ case class StackPair(private val stack: CardStack, private val usedStack: CardSt
   }
 
   def remove(cards: List[Card]): StackPair = {
-    val s = cards.foldLeft(stack.asInstanceOf[Stack]) ((s, c) => s.remove(c).asInstanceOf[Stack])
-    assert(this.stack.length() == s.length() + cards.length)
+    val s = cards.foldLeft(stack) ((s, c) => s match {
+      case EmptyStack() => s
+      case s: Stack => s.remove(c)
+    })
+    assert(stack.length() == s.length() + cards.length)
     this.copy(stack = s)
   }
 }

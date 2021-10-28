@@ -14,7 +14,7 @@ given dockGenerator: DeckGenerator = NewShuflledStackFromDeck
 
 object Game {
   def NewGame(numberOfPlayer: Int)(using dockGenerator: DeckGenerator): Game = {
-    var stack: CardStack = dockGenerator.DeckGenerator()
+    var stack = dockGenerator.DeckGenerator()
 
     Game(
       players = null,

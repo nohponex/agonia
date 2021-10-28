@@ -30,20 +30,20 @@ class GameTest extends org.scalatest.funsuite.AnyFunSuite {
     //todo using factories might be an exaggeration since we can create any state we want
     given dockGenerator:DeckGenerator = InjectedDeck(Stack(List(
       Card(Rank.Ace, Suit.Spades),
-      Card(Rank.Ace, Suit.Spades),
-      Card(Rank.Ace, Suit.Spades),
-      Card(Rank.Ace, Suit.Spades),
-      Card(Rank.Ace, Suit.Spades),
-      Card(Rank.Ace, Suit.Spades),
-      Card(Rank.Ace, Suit.Spades),
+      Card(Rank.King, Suit.Spades),
+      Card(Rank.Queen, Suit.Spades),
+      Card(Rank.Jack, Suit.Spades),
+      Card(Rank.Ten, Suit.Spades),
+      Card(Rank.Nine, Suit.Spades),
+      Card(Rank.Eight, Suit.Spades),
 
-      Card(Rank.Ace, Suit.Spades),
-      Card(Rank.Ace, Suit.Spades),
-      Card(Rank.Ace, Suit.Spades),
-      Card(Rank.Ace, Suit.Spades),
-      Card(Rank.Ace, Suit.Spades),
-      Card(Rank.Ace, Suit.Spades),
-      Card(Rank.Ace, Suit.Spades),
+      Card(Rank.Seven, Suit.Spades),
+      Card(Rank.Six, Suit.Spades),
+      Card(Rank.Five, Suit.Spades),
+      Card(Rank.Four, Suit.Spades),
+      Card(Rank.Three, Suit.Spades),
+      Card(Rank.Two, Suit.Spades),
+      Card(Rank.Ace, Suit.Hearts),
 
       Card(Rank.Eight, Suit.Hearts),
     )))
@@ -56,20 +56,20 @@ class GameTest extends org.scalatest.funsuite.AnyFunSuite {
   test("given Initial Card is Nine and then it should be Player1 turn to play") {
     given dockGenerator:DeckGenerator = InjectedDeck(Stack(List(
       Card(Rank.Ace, Suit.Spades),
-      Card(Rank.Ace, Suit.Spades),
-      Card(Rank.Ace, Suit.Spades),
-      Card(Rank.Ace, Suit.Spades),
-      Card(Rank.Ace, Suit.Spades),
-      Card(Rank.Ace, Suit.Spades),
-      Card(Rank.Ace, Suit.Spades),
+      Card(Rank.King, Suit.Spades),
+      Card(Rank.Queen, Suit.Spades),
+      Card(Rank.Jack, Suit.Spades),
+      Card(Rank.Ten, Suit.Spades),
+      Card(Rank.Nine, Suit.Spades),
+      Card(Rank.Eight, Suit.Spades),
 
-      Card(Rank.Ace, Suit.Spades),
-      Card(Rank.Ace, Suit.Spades),
-      Card(Rank.Ace, Suit.Spades),
-      Card(Rank.Ace, Suit.Spades),
-      Card(Rank.Ace, Suit.Spades),
-      Card(Rank.Ace, Suit.Spades),
-      Card(Rank.Ace, Suit.Spades),
+      Card(Rank.Seven, Suit.Spades),
+      Card(Rank.Six, Suit.Spades),
+      Card(Rank.Five, Suit.Spades),
+      Card(Rank.Four, Suit.Spades),
+      Card(Rank.Three, Suit.Spades),
+      Card(Rank.Two, Suit.Spades),
+      Card(Rank.Ace, Suit.Hearts),
 
       Card(Rank.Nine, Suit.Hearts),
     )))
@@ -81,14 +81,5 @@ class GameTest extends org.scalatest.funsuite.AnyFunSuite {
 
   test("given Player1 Played Ace") {
 
-  }
-  
-  test("given GameStarted") {
-    val g = Game.NewGame(2)
-    //assert(g.stackPair.stackLength() == 52-7-7-1)
-    assert(g.playerStack(Player.Player1).length() == 7)
-    assert(g.playerStack(Player.Player2).length() == 7)
-
-    g.peek()
   }
 }
