@@ -5,12 +5,15 @@ import nohponex.agonia.fp.gamestate.*
 import nohponex.agonia.es.events.*
 import nohponex.agonia.fp.player.{Player, Players}
 import nohponex.agonia.fp.cards.{Card, Rank, Suit}
-import nohponex.agonia.fp.deck.{CardStack, EmptyStack, NewShuflledStackFromDeck, Stack, StackPair, DeckGenerator}
+import nohponex.agonia.fp.deck.{CardStack, DeckGenerator, EmptyStack, NewShuflledStackFromDeck, Stack, StackPair}
+
 import scala.collection.LinearSeq
 
 //default implicit
 given dockGenerator: DeckGenerator = NewShuflledStackFromDeck
-
+/**
+ * @deprecated
+ */
 def startAGameOf(numberOfPlayer: Int)(using dockGenerator: DeckGenerator): Game = {
   val players = Players(Player.Player1, numberOfPlayer)
 
@@ -37,11 +40,25 @@ def startAGameOf(numberOfPlayer: Int)(using dockGenerator: DeckGenerator): Game 
   )
     .play(PlayerPlayedCard(Player.Player1, card))
 }
-
+/**
+ * @deprecated
+ */
 def startAGameOf2()(using dockGenerator: DeckGenerator): Game = {
   startAGameOf(2)
 }
 
+object Game {
+  def NewGame(numberOfPlayer: Int)(using dockGenerator: DeckGenerator): Game = {
+    var stack: CardStack = dockGenerator.DeckGenerator()
+
+    Game(
+      players = null,
+      gameState = null,
+      playerStacks = null,
+      stackPair = StackPair(stack, EmptyStack())
+    ).emit(GameStarted(numberOfPlayer))
+  }
+}
 case class Game(
      players: Players,
      gameState: GameState,
@@ -62,13 +79,42 @@ case class Game(
     emit(event)
   }
 
-  private def emit(event: Event): Game = {
+  private def emit(event: Event): Game =
     this.copy(events = events.appended(event)).apply(event)
-  }
+
+  private def emit(events: LinearSeq[Event]): Game =
+    events.foldLeft(this.copy(events = events.appendedAll(events))) {(g, e) => g.apply(e)}
+
 
   def apply(event: Event): Game = event match {
-    case GameStarted(_) => {
-      this
+    case GameStarted(numberOfPlayer) => {
+      //given an initial stack that was created by some DeckGenerator
+
+      //make playerStacks
+      //give them cards
+      val players = Players(Player.Player1, numberOfPlayer)
+
+      var playerStacks = players.All().foldLeft(Map.empty[Player, CardStack])((a, p) => a + (p -> EmptyStack()))
+
+      var eventsToEmit: List[Event] = Nil
+
+      var mystackPair = stackPair 
+      for (p <- players.All()) {
+        val (s1, cards) = mystackPair.take(7)
+        mystackPair = s1
+        //playerStacks = playerStacks + (p -> Stack (cards) )
+        eventsToEmit = eventsToEmit.appended(DrewCards(p, cards))
+      }
+      val (_, initialCard: Card) = mystackPair.take1()
+      
+      eventsToEmit = eventsToEmit.appended(DrewCards(Player.Player1, List(initialCard)))
+      eventsToEmit = eventsToEmit.appended(PlayerPlayedCard(Player.Player1, initialCard))
+
+      this.copy(
+        players = players,
+        playerStacks = playerStacks,
+        gameState = gameStateFromInitialCard(initialCard),
+      ).emit(eventsToEmit)
     }
     case PlayerPlayedCard(p, c) => {
       assert(this.players.Current() == p)
@@ -144,24 +190,24 @@ case class Game(
 
           this.copy(
             gameState = Normal(gameState.CurrentCard),
-            playerStacks = playerStacks + (p -> playerStacks(p).push(cards)),
-            stackPair = newStackPair,
             currentPlayerDrewCard = false
-          )
+          ).emit(DrewCards(p, cards))
         }
         case _ => {
-          val (newStackPair, cc) = this.stackPair.take1()
+          val (_, cc) = this.stackPair.take1()
 
           this.copy(
-            playerStacks = playerStacks + (p -> playerStacks(p).push(cc)),
-            stackPair = newStackPair,
             currentPlayerDrewCard = true
-          )
+          ).emit(DrewCards(p, List(cc)))
         }
       }
     }
-    case PlayerDrewCard(p, c) => {
-      this.copy()
+    case DrewCards(p, cards) => {
+      //remove from "stack"
+      this.copy(
+        stackPair = stackPair.remove(cards),
+        playerStacks = playerStacks + (p -> playerStacks(p).push(cards))
+      )
     }
     case PlayerFolded(p) => {
       assert(currentPlayerDrewCard)

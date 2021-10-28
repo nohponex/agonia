@@ -12,7 +12,7 @@ import scala.io.StdIn.readLine
 
 object Main {
   def main(args: Array[String]) = {
-    var g = startAGameOf(3)
+    var g = Game.NewGame(2)
 
     while (!g.gameState.isInstanceOf[Ended]) {
       g.gameState match {

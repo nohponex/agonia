@@ -90,4 +90,13 @@ class GameTest extends org.scalatest.funsuite.AnyFunSuite {
   test("given Player1 Played Ace") {
 
   }
+  
+  test("given GameStarted") {
+    val g = Game.NewGame(2)
+    assert(g.stackPair.stackLength() == 52-7-7-1)
+    assert(g.playerStacks(Player.Player1).length() == 7)
+    assert(g.playerStacks(Player.Player2).length() == 7)
+
+    g.stackPair.peek()
+  }
 }
