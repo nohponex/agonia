@@ -1,7 +1,7 @@
 package nohponex.agonia.es
 
 import nohponex.agonia.es.events.*
-import nohponex.agonia.es.game.{Game, dockGenerator, startAGameOf}
+import nohponex.agonia.es.game.{Game, dockGenerator}
 import nohponex.agonia.fp.cards.{Card, Rank, Suit}
 import nohponex.agonia.fp.deck.{CardStack, Stack}
 import nohponex.agonia.fp.gamestate.{Ace, Base7, Ended, GameState, Seven}
@@ -16,8 +16,8 @@ object Main {
 
     while (!g.gameState.isInstanceOf[Ended]) {
       g.gameState match {
-        case Ace(_, ofSuite) => println("Current card is: " + g.stackPair.peek() + " but of suit " + ofSuite)
-        case _ => println("Current card is: " + g.stackPair.peek())
+        case Ace(_, ofSuite) => println("Current card is: " + g.peek() + " but of suit " + ofSuite)
+        case _ => println("Current card is: " + g.peek())
       }
 
       println()
@@ -34,7 +34,7 @@ object Main {
       }
 
       println("Choose between:" )
-      for (card, index) <- g.playerStacks(g.players.Current()).asInstanceOf[Stack].cards.zipWithIndex do {
+      for (card, index) <- g.playerStack(g.players.Current()).asInstanceOf[Stack].cards.zipWithIndex do {
         card.suit match {
           case Suit.Spades | Suit.Clubs => println(s"- ${UNDERLINED}${index}${RESET}) ${BLACK}${card}${RESET}")
           case Suit.Diamonds | Suit.Hearts => println(s"- ${UNDERLINED}${index}${RESET}) ${RED}${card}${RESET}")
@@ -44,7 +44,7 @@ object Main {
       val event = playedCard(
         g,
         g.players.Current(),
-        g.playerStacks(g.players.Current()).asInstanceOf[Stack],
+        g.playerStack(g.players.Current()).asInstanceOf[Stack],
         g.gameState
       )
 

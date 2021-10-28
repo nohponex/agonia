@@ -11,41 +11,6 @@ import scala.collection.LinearSeq
 
 //default implicit
 given dockGenerator: DeckGenerator = NewShuflledStackFromDeck
-/**
- * @deprecated
- */
-def startAGameOf(numberOfPlayer: Int)(using dockGenerator: DeckGenerator): Game = {
-  val players = Players(Player.Player1, numberOfPlayer)
-
-  var playerStacks = players.All().foldLeft(Map.empty[Player, CardStack])((a, b) => a + (b -> EmptyStack()))
-  var usedStack: CardStack = EmptyStack()
-  var stack: CardStack = dockGenerator.DeckGenerator()
-
-  for (p <- players.All()) {
-    val (s1, cards) = stack.asInstanceOf[Stack].take(7)
-    stack = s1
-    playerStacks = playerStacks + (p -> Stack (cards) )
-  }
-  val (s1, card) = stack.asInstanceOf[Stack].take1()
-  stack = s1
-
-  Game(
-    players = players,
-    gameState = gameStateFromInitialCard(card),
-    playerStacks = playerStacks,
-    stackPair = StackPair(stack, Stack(List(card))),
-    LinearSeq(
-      GameStarted(numberOfPlayer),
-    )
-  )
-    .play(PlayerPlayedCard(Player.Player1, card))
-}
-/**
- * @deprecated
- */
-def startAGameOf2()(using dockGenerator: DeckGenerator): Game = {
-  startAGameOf(2)
-}
 
 object Game {
   def NewGame(numberOfPlayer: Int)(using dockGenerator: DeckGenerator): Game = {
@@ -59,13 +24,14 @@ object Game {
     ).emit(GameStarted(numberOfPlayer))
   }
 }
+
 case class Game(
      players: Players,
      gameState: GameState,
-     playerStacks: Map[Player, CardStack],
-     stackPair: StackPair,
-     events: LinearSeq[Event] = LinearSeq(),
-     currentPlayerDrewCard: Boolean = false,
+     private val playerStacks: Map[Player, CardStack],
+     private val stackPair: StackPair,
+     private val events: LinearSeq[Event] = LinearSeq(),
+     private val currentPlayerDrewCard: Boolean = false,
 ) {
   def CanFold(): Boolean = {
     currentPlayerDrewCard
@@ -73,6 +39,15 @@ case class Game(
 
   def CanDraw(): Boolean = {
     true
+  }
+
+  def peek(): Card = {
+    stackPair.peek()
+  }
+
+  def playerStack(p: Player): CardStack = {
+    assert(p == players.Current())
+    playerStacks(p)
   }
 
   def play(event: PlayerActionEvent): Game = {
@@ -88,10 +63,7 @@ case class Game(
 
   def apply(event: Event): Game = event match {
     case GameStarted(numberOfPlayer) => {
-      //given an initial stack that was created by some DeckGenerator
 
-      //make playerStacks
-      //give them cards
       val players = Players(Player.Player1, numberOfPlayer)
 
       var playerStacks = players.All().foldLeft(Map.empty[Player, CardStack])((a, p) => a + (p -> EmptyStack()))
@@ -102,7 +74,6 @@ case class Game(
       for (p <- players.All()) {
         val (s1, cards) = mystackPair.take(7)
         mystackPair = s1
-        //playerStacks = playerStacks + (p -> Stack (cards) )
         eventsToEmit = eventsToEmit.appended(DrewCards(p, cards))
       }
       val (_, initialCard: Card) = mystackPair.take1()
@@ -203,10 +174,9 @@ case class Game(
       }
     }
     case DrewCards(p, cards) => {
-      //remove from "stack"
       this.copy(
         stackPair = stackPair.remove(cards),
-        playerStacks = playerStacks + (p -> playerStacks(p).push(cards))
+        playerStacks = playerStacks + (p -> playerStacks(p).append(cards))
       )
     }
     case PlayerFolded(p) => {

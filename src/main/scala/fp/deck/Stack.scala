@@ -20,6 +20,10 @@ sealed trait CardStack {
     case EmptyStack() => Stack(cards)
     case Stack(x) => Stack(x.prependedAll(cards))
   }
+  def append(cards: List[Card]): Stack = this match {
+    case EmptyStack() => Stack(cards)
+    case Stack(x) => Stack(x.appendedAll(cards))
+  }
 }
 
 final case class EmptyStack() extends CardStack {}

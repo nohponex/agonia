@@ -9,14 +9,6 @@ import nohponex.agonia.fp.gamestate.{Normal, Seven}
 given dockGenerator:DeckGenerator = FixedDeck
 
 class GameTest extends org.scalatest.funsuite.AnyFunSuite {
-  test("startAGameOf2 should start a game where both players have 7 cards and one is open") {
-    val g = startAGameOf2()
-
-    assert(g.playerStacks(Player.Player1).length() == 7)
-    assert(g.playerStacks(Player.Player2).length() == 7)
-    assert(g.stackPair.peek() != null)
-    assert(g.stackPair.stackLength() == 52-1-7-7)
-  }
 
   test("gameStateFromInitialCard is Seven") {
     assert(gameStateFromInitialCard(Card(Rank.Seven, Suit.Spades)).isInstanceOf[Seven])
@@ -28,7 +20,7 @@ class GameTest extends org.scalatest.funsuite.AnyFunSuite {
   }
 
   test("given Initial Card is Something and GameState is Normal then it should be Player2 turn to play") {
-    val g = startAGameOf2()
+    val g = Game.NewGame(2)
 
     require(g.gameState.isInstanceOf[Normal])
     assert(g.players.Current() == Player.Player2)
@@ -55,9 +47,9 @@ class GameTest extends org.scalatest.funsuite.AnyFunSuite {
 
       Card(Rank.Eight, Suit.Hearts),
     )))
-    val g = startAGameOf2()
+    val g = Game.NewGame(2)
 
-    require(g.stackPair.peek().rank == Rank.Eight)
+    require(g.peek().rank == Rank.Eight)
     assert(g.players.Current() == Player.Player1)
   }
 
@@ -81,9 +73,9 @@ class GameTest extends org.scalatest.funsuite.AnyFunSuite {
 
       Card(Rank.Nine, Suit.Hearts),
     )))
-    val g = startAGameOf2()
+    val g = Game.NewGame(2)
 
-    require(g.stackPair.peek().rank == Rank.Nine)
+    require(g.peek().rank == Rank.Nine)
     assert(g.players.Current() == Player.Player1)
   }
 
@@ -93,10 +85,10 @@ class GameTest extends org.scalatest.funsuite.AnyFunSuite {
   
   test("given GameStarted") {
     val g = Game.NewGame(2)
-    assert(g.stackPair.stackLength() == 52-7-7-1)
-    assert(g.playerStacks(Player.Player1).length() == 7)
-    assert(g.playerStacks(Player.Player2).length() == 7)
+    //assert(g.stackPair.stackLength() == 52-7-7-1)
+    assert(g.playerStack(Player.Player1).length() == 7)
+    assert(g.playerStack(Player.Player2).length() == 7)
 
-    g.stackPair.peek()
+    g.peek()
   }
 }
