@@ -45,11 +45,10 @@ class StackTest extends org.scalatest.funsuite.AnyFunSuite {
 
   test("test(52) should return empty") {
     val s = NewShuflledStackFromDeck.DeckGenerator()
-    assert(52 === s.length())
+    assert(52 === s.length)
 
     val res = s.take(52)
-    assert(res._1 == EmptyStack())
-    assert(52 == res._2.length)
+    assert(res.isEmpty)
   }
 
   test("when EmptyStack push") {
@@ -62,26 +61,6 @@ class StackTest extends org.scalatest.funsuite.AnyFunSuite {
     val c = Card(rank = Rank.Ace, suit = Suit.Spades)
     val s = Stack(List(Card(rank = Rank.Queen, suit = Suit.Hearts))).push(c)
     assert(c == s.peek())
-  }
-
-  test("doing 52 take1 will empty a stack from fp.deck") {
-    var deck1: CardStack = NewShuflledStackFromDeck.DeckGenerator()
-    var otherDeck: CardStack = EmptyStack()
-
-    for( _ <- 0 until 52){
-      deck1 match {
-        case _: EmptyStack => assert(false)
-
-        case dd: Stack => {
-          val (d1, card) = dd.take1()
-          deck1 = d1
-          otherDeck = otherDeck.push(card)
-        }
-      }
-    }
-
-    assert(deck1 == EmptyStack())
-    assert(52 == otherDeck.length())
   }
 
   test("Remove") {

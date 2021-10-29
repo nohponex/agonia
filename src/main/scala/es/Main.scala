@@ -1,9 +1,9 @@
 package nohponex.agonia.es
 
 import nohponex.agonia.es.events.*
-import nohponex.agonia.es.game.{Game, dockGenerator}
+import nohponex.agonia.es.game.{Game, deckGenerator}
 import nohponex.agonia.fp.cards.{Card, Rank, Suit}
-import nohponex.agonia.fp.deck.{CardStack, Stack}
+import nohponex.agonia.fp.deck.{CardStack, DeckGenerator, Stack, InjectedDeck}
 import nohponex.agonia.fp.gamestate.{Ace, Base7, Ended, GameState, Seven}
 import nohponex.agonia.fp.player.{Player, Players}
 

@@ -1,26 +1,27 @@
 package nohponex.agonia.es.game
 
+import fp.deck.FlexibleDeck
 import nohponex.agonia.es
 import nohponex.agonia.fp.gamestate.*
 import nohponex.agonia.es.events.*
 import nohponex.agonia.fp.player.{Player, Players}
 import nohponex.agonia.fp.cards.{Card, Rank, Suit}
-import nohponex.agonia.fp.deck.{CardStack, DeckGenerator, EmptyStack, NewShuflledStackFromDeck, Stack, StackPair}
+import nohponex.agonia.fp.deck.{CardStack, DeckGenerator, EmptyStack, NewShuflledStackFromDeck, Stack}
 
 import scala.collection.LinearSeq
 
 //default implicit
-given dockGenerator: DeckGenerator = NewShuflledStackFromDeck
+given deckGenerator: DeckGenerator = NewShuflledStackFromDeck
 
 object Game {
-  def NewGame(numberOfPlayer: Int)(using dockGenerator: DeckGenerator): Game = {
-    var stack = dockGenerator.DeckGenerator()
-
+  def NewGame(numberOfPlayer: Int)(using deckGenerator: DeckGenerator): Game = {
+    var cards = deckGenerator.DeckGenerator()
+        
     Game(
       players = null,
       gameState = null,
       playerStacks = null,
-      stackPair = StackPair(stack, EmptyStack())
+      deck = FlexibleDeck.NewFlexibleDeck(cards),
     ).emit(GameStarted(numberOfPlayer))
   }
 }
@@ -28,8 +29,8 @@ object Game {
 case class Game(
      players: Players,
      gameState: GameState,
+     private val deck: FlexibleDeck,
      private val playerStacks: Map[Player, CardStack],
-     private val stackPair: StackPair,
      private val events: LinearSeq[Event] = LinearSeq(),
      private val currentPlayerDrewCard: Boolean = false,
 ) {
@@ -42,7 +43,7 @@ case class Game(
   }
 
   def peek(): Card = {
-    stackPair.peek()
+    deck.currentCard.get
   }
 
   def playerStack(p: Player): CardStack = {
@@ -70,25 +71,29 @@ case class Game(
 
       var eventsToEmit: List[Event] = Nil
 
-      var mystackPair = stackPair 
+      var newDeck = deck 
       for (p <- players.All()) {
-        val (s1, cards) = mystackPair.take(7)
-        mystackPair = s1
+        val (d1, cards) = newDeck.take(7)
+        newDeck = d1
         eventsToEmit = eventsToEmit.appended(DrewCards(p, cards))
       }
-      val (_, initialCard: Card) = mystackPair.take1()
+      val (_, initialCard) = newDeck.take(1)
       
-      eventsToEmit = eventsToEmit.appended(DrewCards(Player.Player1, List(initialCard)))
-      eventsToEmit = eventsToEmit.appended(PlayerPlayedCard(Player.Player1, initialCard))
+      eventsToEmit = eventsToEmit.appended(DrewCards(Player.Player1, initialCard))
+      eventsToEmit = eventsToEmit.appended(PlayerPlayedCard(Player.Player1, initialCard(0)))
 
       this.copy(
         players = players,
         playerStacks = playerStacks,
-        gameState = gameStateFromInitialCard(initialCard),
+        gameState = gameStateFromInitialCard(initialCard(0)),
       ).emit(eventsToEmit)
     }
     case PlayerPlayedCard(p, c) => {
       assert(this.players.Current() == p)
+
+      if c.rank == Rank.Ace then
+        assert(!gameState.isInstanceOf[Ace])
+
 
       c.rank match {
         case Rank.Seven => this.copy(
@@ -97,20 +102,20 @@ case class Game(
             case _ => Seven(c)
           },
           players = players.Next(),
-          stackPair = stackPair.play(c),
+          deck = deck.play(c),
           playerStacks = playerStacks + (p -> playerStacks(p).asInstanceOf[Stack].remove(c)),
           currentPlayerDrewCard = false
         ).emit(PlayerEndedTurn(p))
         case Rank.Eight => this.copy(
           gameState = Normal(c),
-          stackPair = stackPair.play(c),
+          deck = deck.play(c),
           playerStacks = playerStacks + (p -> playerStacks(p).asInstanceOf[Stack].remove(c)),
           currentPlayerDrewCard = false
         ).emit(PlayerEndedTurn(p))
         case Rank.Nine => this.copy(
           gameState = Normal(c),
           players = players.Next().Next(),
-          stackPair = stackPair.play(c),
+          deck = deck.play(c),
           playerStacks = playerStacks + (p -> playerStacks(p).asInstanceOf[Stack].remove(c)),
           currentPlayerDrewCard = false
         ).emit(PlayerEndedTurn(p))
@@ -118,7 +123,7 @@ case class Game(
         case _ => this.copy(
           gameState = Normal(c),
           players = players.Next(),
-          stackPair = stackPair.play(c),
+          deck = deck.play(c),
           playerStacks = playerStacks + (p -> playerStacks(p).asInstanceOf[Stack].remove(c))
         ).emit(PlayerEndedTurn(p))
       }
@@ -131,7 +136,7 @@ case class Game(
       this.copy(
         players = players.Next(),
         gameState = Ace(currentCard = c, ofSuite),
-        stackPair = stackPair.play(c),
+        deck = deck.play(c),
         playerStacks = playerStacks + (p -> playerStacks(p).asInstanceOf[Stack].remove(c))
       ).emit(PlayerEndedTurn(p))
     }
@@ -151,13 +156,7 @@ case class Game(
 
       gameState match {
         case a: Base7 => {
-          var cards: List[Card] = Nil
-          var newStackPair = stackPair
-          for i <- 0 until a.ToDraw() do {
-            var (newStackPair2: StackPair, cc: Card) = newStackPair.take1()
-            newStackPair = newStackPair2
-            cards = cards.prepended(cc)
-          }
+          val (newStackPair, cards) = deck.take(a.ToDraw())
 
           this.copy(
             gameState = Normal(gameState.CurrentCard),
@@ -165,17 +164,17 @@ case class Game(
           ).emit(DrewCards(p, cards))
         }
         case _ => {
-          val (_, cc) = this.stackPair.take1()
+          val (_, cards) = this.deck.take(1)
 
           this.copy(
             currentPlayerDrewCard = true
-          ).emit(DrewCards(p, List(cc)))
+          ).emit(DrewCards(p, cards))
         }
       }
     }
     case DrewCards(p, cards) => {
       this.copy(
-        stackPair = stackPair.remove(cards),
+        deck = deck.remove(cards),
         playerStacks = playerStacks + (p -> playerStacks(p).append(cards))
       )
     }
