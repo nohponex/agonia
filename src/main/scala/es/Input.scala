@@ -104,10 +104,10 @@ def aceOfSuit(): Suit = {
 
 def formatedSuit(suit: Suit): String = suit match {
   case Suit.Spades | Suit.Clubs => s"${BLACK}${suit}${RESET}"
-  case Suit.Diamonds | Suit.Hearts => s"-${RED}${suit}${RESET}"
+  case Suit.Diamonds | Suit.Hearts => s"${RED}${suit}${RESET}"
 }
 
 def formatedCard(card: Card): String = card.suit match {
   case Suit.Spades | Suit.Clubs => s"${BLACK}${card}${RESET}"
-  case Suit.Diamonds | Suit.Hearts => s"-${RED}${card}${RESET}"
+  case Suit.Diamonds | Suit.Hearts => s"${RED}${card}${RESET}"
 }

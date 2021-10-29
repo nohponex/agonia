@@ -92,8 +92,7 @@ case class Game(
       assert(this.players.Current() == p)
 
       if c.rank == Rank.Ace then
-        assert(!gameState.isInstanceOf[Ace])
-
+        assert(gameState.isInstanceOf[Ace])
 
       c.rank match {
         case Rank.Seven => this.copy(
