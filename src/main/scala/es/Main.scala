@@ -1,9 +1,10 @@
 package nohponex.agonia.es
 
+import nohponex.agonia.ai.RobotPlayer
 import nohponex.agonia.es.events.*
 import nohponex.agonia.es.game.{Game, deckGenerator}
 import nohponex.agonia.fp.cards.{Card, Rank, Suit}
-import nohponex.agonia.fp.deck.{CardStack, DeckGenerator, Stack, InjectedDeck}
+import nohponex.agonia.fp.deck.{CardStack, DeckGenerator, InjectedDeck, Stack}
 import nohponex.agonia.fp.gamestate.{Ace, Base7, Ended, GameState, Seven}
 import nohponex.agonia.fp.player.{Player, Players}
 
@@ -16,41 +17,32 @@ object Main {
 
     while (!g.gameState.isInstanceOf[Ended]) {
       g.gameState match {
-        case Ace(_, ofSuite) => println("Current card is: " + g.peek() + " but of suit " + ofSuite)
-        case _ => println("Current card is: " + g.peek())
+        case Ace(card, ofSuite) => println(s"Current card is: ${formatedCard(card)} but of suit ${formatedSuit(ofSuite)}")
+        case _ => println(s"Current card is: ${formatedCard(g.peek())}")
       }
 
       println()
       println("Current player is: " + g.players.Current())
 
-      if g.CanFold() then {
-        println(s"You can fold, type \"${UNDERLINED}f${RESET}old\"")
+      val event = g.players.Current() match {
+        case Player.Player1  => play(
+          g,
+          g.players.Current(),
+          g.playerStack(g.players.Current()).asInstanceOf[Stack],
+          g.gameState
+        )
+        case _ => RobotPlayer.play(
+          g,
+          g.players.Current(),
+          g.playerStack(g.players.Current()).asInstanceOf[Stack],
+          g.gameState
+        )
       }
-      if g.gameState.isInstanceOf[Base7] then {
-        val ToCount = g.gameState.asInstanceOf[Base7].ToDraw()
-        println(s"You have either play 7 or to draw (${ToCount}), type \"${UNDERLINED}d${RESET}raw\"")
-      } else if g.CanDraw() then {
-        println(s"You can draw, type \"${UNDERLINED}d${RESET}raw\"")
-      }
-
-      println("Choose between:" )
-      for (card, index) <- g.playerStack(g.players.Current()).asInstanceOf[Stack].cards.zipWithIndex do {
-        card.suit match {
-          case Suit.Spades | Suit.Clubs => println(s"- ${UNDERLINED}${index}${RESET}) ${BLACK}${card}${RESET}")
-          case Suit.Diamonds | Suit.Hearts => println(s"- ${UNDERLINED}${index}${RESET}) ${RED}${card}${RESET}")
-        }
-
-      }
-      val event = playedCard(
-        g,
-        g.players.Current(),
-        g.playerStack(g.players.Current()).asInstanceOf[Stack],
-        g.gameState
-      )
 
       println("event:" + event)
       g = g.play(event)
     }
     println("Game over! ")
   }
+
 }
