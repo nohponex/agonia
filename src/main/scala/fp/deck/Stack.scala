@@ -15,46 +15,26 @@ sealed trait CardStack {
     case EmptyStack() => Stack(List(card))
     case Stack(x) => Stack(x.prepended(card))
   }
-
-  def push(cards: List[Card]): Stack = this match {
+  
+  def append(cards: List[Card]): Stack = this match {
     case EmptyStack() => Stack(cards)
-    case Stack(x) => Stack(x.prependedAll(cards))
+    case Stack(x) => Stack(x.appendedAll(cards))
   }
 }
-final case class EmptyStack() extends CardStack {
-}
-final case class Stack(c: List[Card]) extends CardStack {
-  def remove(card: Card): CardStack = {
-      val a = c.filterNot(_ == card)
 
-      a match {
+final case class EmptyStack() extends CardStack {}
+final case class Stack(cards: List[Card]) extends CardStack {
+  def remove(card: Card): CardStack = {
+      cards.filterNot(_ == card) match {
         case Nil => EmptyStack()
-        case _ => Stack(a)
+        case s: _ => Stack(s)
       }
   }
 
-  def shuffle(): Stack = {
-    Stack(Random.shuffle(c))
-  }
-
+  /**
+   * @deprecated
+   */
   def peek(): Card = {
-    c(0)
-  }
-
-  def take1(): (CardStack, Card) = {
-    val res = take(1)
-    (res._1, res._2(0))
-  }
-
-  def take(n: Int): (CardStack, List[Card]) = {
-    if n > this.length() then
-      throw new RuntimeException("Cannot take more fp.cards than are in fp.deck")
-
-    if n == this.length() then
-      return (EmptyStack(), c)
-
-    val (s1, s2) = c.splitAt(n)
-
-    (Stack(s2), s1)
+    cards(0)
   }
 }
