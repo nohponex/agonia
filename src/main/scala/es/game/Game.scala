@@ -186,6 +186,8 @@ case class Game(
     }
     case _ => ???
   }
+
+  def ObservableEvents(): LinearSeq[Event] = events.filter(_.isInstanceOf[PlayerActionEvent])
 }
 
 def gameStateFromInitialCard(card: Card): GameState = (card.rank, card.suit) match {

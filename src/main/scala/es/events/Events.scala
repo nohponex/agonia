@@ -4,7 +4,7 @@ import nohponex.agonia.fp.cards.{Card, Suit}
 import nohponex.agonia.fp.player.Player
 
 sealed class Event
-trait PlayerActionEvent extends Event
+sealed class PlayerActionEvent extends Event
 
 final case class GameStarted(numberOfPlayers: Int) extends Event()
 

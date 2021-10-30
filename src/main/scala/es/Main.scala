@@ -1,6 +1,6 @@
 package nohponex.agonia.es
 
-import nohponex.agonia.ai.RobotPlayer
+import nohponex.agonia.ai.MemorylessAI
 import nohponex.agonia.es.events.*
 import nohponex.agonia.es.game.{Game, deckGenerator}
 import nohponex.agonia.fp.cards.{Card, Rank, Suit}
@@ -31,7 +31,7 @@ object Main {
           g.playerStack(g.players.Current()).asInstanceOf[Stack],
           g.gameState
         )
-        case _ => RobotPlayer.play(
+        case _ => MemorylessAI.play(
           g,
           g.players.Current(),
           g.playerStack(g.players.Current()).asInstanceOf[Stack],
@@ -43,6 +43,8 @@ object Main {
       g = g.play(event)
     }
     println("Game over! ")
+    println("Game events replay: ")
+    g.ObservableEvents().foreach(println)
   }
 
 }

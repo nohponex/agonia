@@ -4,10 +4,10 @@ import nohponex.agonia.es.events.{PlayerActionEvent, PlayerDrew, PlayerFolded, P
 import nohponex.agonia.es.game.Game
 import nohponex.agonia.fp.cards.{Card, Rank, Suit}
 import nohponex.agonia.fp.deck.Stack
-import nohponex.agonia.fp.gamestate.GameState
+import nohponex.agonia.fp.gamestate.{GameState, Ace}
 import nohponex.agonia.fp.player.Player
 
-object RobotPlayer {
+object MemorylessAI {
   def play(
      g : Game,
      player: Player,
@@ -16,9 +16,10 @@ object RobotPlayer {
   ): PlayerActionEvent = {
     val allowedCards = stack.cards.filter(state.isAllowed(_))
     //todo prefer Ace last
+    //todo prefer 8 if has same Suit
     match {
-      case s :: rest => return s match {
-        case Card(Rank.Ace, _) => PlayerPlayedCardAce(player, s, preferedSuit(stack.cards))
+      case s :: rest => return (s, state) match {
+        case (Card(Rank.Ace, _), ss) if !ss.isInstanceOf[Ace] => PlayerPlayedCardAce(player, s, preferedSuit(stack.cards))
         case _ => PlayerPlayedCard(player, s)
       }
       case Nil =>
@@ -31,6 +32,9 @@ object RobotPlayer {
   }
 
   def preferedSuit(cards: List[Card]): Suit = {
-    cards.groupBy(_.suit).mapValues(_.length).toSeq.sortWith(_._2 > _._2).head._1
+    if cards.isEmpty then
+      return Suit.Hearts
+
+    cards.groupBy(_.suit).view.mapValues(_.length).toSeq.sortWith(_._2 > _._2).head._1
   }
 }
