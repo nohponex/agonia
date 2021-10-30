@@ -101,7 +101,7 @@ class GameTest extends org.scalatest.funsuite.AnyFunSuite {
       Card(Rank.Three, Suit.Hearts),
     ))
     val g = Game.NewGame(2)
-      .play(PlayerPlayedCard(Player.Player2, Card(Rank.Ace, Suit.Spades)))
+      .play(PlayerPlayedCard(Player.Player2, Card(Rank.King, Suit.Spades)))
       .play(PlayerDrew(Player.Player1))
 
     assert(g.players.Current() == Player.Player1)
