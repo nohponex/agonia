@@ -1,6 +1,5 @@
 package nohponex.agonia.domain.model.ai
 
-import nohponex.agonia.ai.MemorylessAI
 import nohponex.agonia.domain.model.cards.{Card, Rank, Suit}
 import org.scalatest.funsuite.AnyFunSuiteLike
 

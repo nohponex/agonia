@@ -1,6 +1,6 @@
 package nohponex.agonia.interfaces.terminal
 
-import nohponex.agonia.ai.MemorylessAI
+import nohponex.agonia.domain.model.ai.MemorylessAI
 import nohponex.agonia.domain.model.Game
 import nohponex.agonia.domain.model.cards.{Card, Rank, Suit}
 import nohponex.agonia.domain.model.deck.*

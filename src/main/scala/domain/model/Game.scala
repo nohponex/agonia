@@ -91,6 +91,8 @@ case class Game(
     case PlayerPlayedCard(p, c) => {
       assert(this.players.Current() == p)
 
+      assert(gameState.isAllowed(c))
+
       if c.rank == Rank.Ace then
         assert(gameState.isInstanceOf[Ace])
 
@@ -190,7 +192,8 @@ case class Game(
   def ObservableEvents(): LinearSeq[Event] = events.filter(_.isInstanceOf[PlayerActionEvent])
 }
 
-def gameStateFromInitialCard(card: Card): GameState = (card.rank, card.suit) match {
-  case (Rank.Seven, _) => Seven(card)
+def gameStateFromInitialCard(card: Card): GameState = card.rank match {
+  case Rank.Seven => Seven(card)
+  case Rank.Ace => Ace(card, card.suit)
   case _ => Normal(card)
 }
