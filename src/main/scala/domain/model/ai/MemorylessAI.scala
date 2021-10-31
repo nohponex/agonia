@@ -14,21 +14,21 @@ object MemorylessAI {
      stack: Stack,
      state: GameState,
   ): PlayerActionEvent = {
-    val allowedCards = stack.cards.filter(state.isAllowed(_)) match {
-      case s :: rest => return s.rank match {
+    stack.cards.filter(state.isAllowed(_)) match {
+      case s::_ => s.rank match {
         case Rank.Ace => state match {
-          case _: Ace => return PlayerPlayedCard(player, s)
-          case _ => return PlayerPlayedCardAce(player, s, preferedSuit(stack.cards))
+          case _: Ace => PlayerPlayedCard(player, s)
+          case _ => PlayerPlayedCardAce(player, s, preferedSuit(stack.cards))
         }
-        case _ => return PlayerPlayedCard(player, s)
+        case _ => PlayerPlayedCard(player, s)
       }
-      case Nil =>
+      case Nil => {
+        if g.CanFold() then
+          return PlayerFolded(player)
+
+        PlayerDrew(player)
+      }
     }
-
-    if g.CanFold() then
-      return PlayerFolded(player)
-
-    PlayerDrew(player)
   }
 
   def preferedSuit(cards: List[Card]): Suit = {

@@ -16,7 +16,12 @@ class BenchmarkTest extends org.scalatest.funsuite.AnyFunSuiteLike {
         var g = Game.NewGame(2)
 
         while (!g.gameState.isInstanceOf[Ended]) {
-          val event = MemorylessAI.play(
+          val imp = g.players.Current() match {
+            case Player.Player1 => MemorylessAI.play
+            case Player.Player2 => SmarterMemorylessAI.play
+          }
+
+          val event = imp(
             g,
             g.players.Current(),
             g.playerStack(g.players.Current()).asInstanceOf[Stack],

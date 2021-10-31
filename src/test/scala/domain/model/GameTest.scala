@@ -15,8 +15,11 @@ class GameTest extends org.scalatest.funsuite.AnyFunSuite {
     assert(gameStateFromInitialCard(Card(Rank.Seven, Suit.Spades)).isInstanceOf[Seven])
   }
 
+  test("gameStateFromInitialCard is Ace") {
+    assert(gameStateFromInitialCard(Card(Rank.Two, Suit.Spades)).isInstanceOf[Normal])
+  }
+
   test("gameStateFromInitialCard is Normal") {
-    assert(gameStateFromInitialCard(Card(Rank.Ace, Suit.Spades)).isInstanceOf[Normal])
     assert(gameStateFromInitialCard(Card(Rank.Two, Suit.Spades)).isInstanceOf[Normal])
   }
 
