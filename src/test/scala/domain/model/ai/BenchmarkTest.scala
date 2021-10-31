@@ -12,7 +12,7 @@ given deckGenerator:DeckGenerator = NewShuflledStackFromDeck
 
 class BenchmarkTest extends org.scalatest.funsuite.AnyFunSuiteLike {
     test("Benchmark") {
-      val res = Range(0, 50).map(_ => {
+      val res = Range(0, 100).map(_ => {
         var g = Game.NewGame(2)
 
         while (!g.gameState.isInstanceOf[Ended]) {
