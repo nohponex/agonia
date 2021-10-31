@@ -1,4 +1,4 @@
-package nohponex.agonia.ai
+package nohponex.agonia.domain.model.ai
 
 import nohponex.agonia.domain.model.Game
 import nohponex.agonia.domain.model.events.{PlayerActionEvent, PlayerDrew, PlayerFolded, PlayerPlayedCard, PlayerPlayedCardAce}
@@ -14,13 +14,13 @@ object MemorylessAI {
      stack: Stack,
      state: GameState,
   ): PlayerActionEvent = {
-    val allowedCards = stack.cards.filter(state.isAllowed(_))
-    //todo prefer Ace last
-    //todo prefer 8 if has same Suit
-    match {
-      case s :: rest => return (s, state) match {
-        case (Card(Rank.Ace, _), ss) if !ss.isInstanceOf[Ace] => PlayerPlayedCardAce(player, s, preferedSuit(stack.cards))
-        case _ => PlayerPlayedCard(player, s)
+    val allowedCards = stack.cards.filter(state.isAllowed(_)) match {
+      case s :: rest => return s.rank match {
+        case Rank.Ace => state match {
+          case _: Ace => return PlayerPlayedCard(player, s)
+          case _ => return PlayerPlayedCardAce(player, s, preferedSuit(stack.cards))
+        }
+        case _ => return PlayerPlayedCard(player, s)
       }
       case Nil =>
     }
@@ -32,9 +32,9 @@ object MemorylessAI {
   }
 
   def preferedSuit(cards: List[Card]): Suit = {
-    if cards.isEmpty then
-      return Suit.Hearts
-
-    cards.groupBy(_.suit).view.mapValues(_.length).toSeq.sortWith(_._2 > _._2).head._1
+    cards.filterNot(_.rank == Rank.Ace) match
+      case Nil => Suit.Hearts
+      case _ =>
+        cards.groupBy(_.suit).view.mapValues(_.length).toSeq.sortWith(_._2 > _._2).head._1
   }
 }
